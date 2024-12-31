@@ -10,12 +10,23 @@ import {
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem as PackingListItem, isList } from '../../types/packing';
+import MarkPackedDialog from '../dialogs/MarkPackedDialog';
 
 interface ListItemComponentProps {
   item: PackingListItem;
   level?: number;
   onToggle?: (id: string) => void;
+  onMarkAllPacked?: (id: string) => void;
 }
+
+const countSubItems = (item: PackingListItem): number => {
+  if (!isList(item)) {
+    return 0;
+  }
+  return item.items.reduce((count, subItem) => {
+    return count + 1 + countSubItems(subItem);
+  }, 0);
+};
 
 const calculateCheckState = (item: PackingListItem): { checked: boolean; indeterminate: boolean } => {
   if (!isList(item)) {
@@ -37,11 +48,14 @@ const calculateCheckState = (item: PackingListItem): { checked: boolean; indeter
 const ListItemComponent = ({ 
   item, 
   level = 0,
-  onToggle 
+  onToggle,
+  onMarkAllPacked,
 }: ListItemComponentProps) => {
   const [open, setOpen] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const hasSubItems = isList(item);
   const checkState = calculateCheckState(item);
+  const subItemCount = hasSubItems ? countSubItems(item) : 0;
 
   const handleClick = () => {
     if (hasSubItems) {
@@ -51,7 +65,16 @@ const ListItemComponent = ({
 
   const handleCheckboxClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    onToggle?.(item.id);
+    if (hasSubItems && !checkState.checked) {
+      setDialogOpen(true);
+    } else {
+      onToggle?.(item.id);
+    }
+  };
+
+  const handleConfirmMarkAll = () => {
+    onMarkAllPacked?.(item.id);
+    setDialogOpen(false);
   };
 
   return (
@@ -82,10 +105,19 @@ const ListItemComponent = ({
                 item={subItem}
                 level={level + 1}
                 onToggle={onToggle}
+                onMarkAllPacked={onMarkAllPacked}
               />
             ))}
           </List>
         </Collapse>
+      )}
+      {hasSubItems && (
+        <MarkPackedDialog
+          open={dialogOpen}
+          itemCount={subItemCount}
+          onClose={() => setDialogOpen(false)}
+          onConfirm={handleConfirmMarkAll}
+        />
       )}
     </>
   );

@@ -51,6 +51,34 @@ const ListContainer = () => {
     navigate(`/list/${encodedData}`);
   };
 
+  const handleMarkAllPacked = (id: string) => {
+    if (!list) return;
+
+    const markAllPacked = (items: ListItem[]): ListItem[] => {
+      return items.map(item => {
+        if ('items' in item) {
+          return item.id === id
+            ? { ...item, items: markAllPacked(item.items) }
+            : { ...item, items: markAllPacked(item.items) };
+        }
+        // If we're inside the target list or one of its sublists,
+        // mark the item as checked
+        return 'checked' in item
+          ? { ...item, checked: true }
+          : item;
+      });
+    };
+
+    const updatedList = {
+      ...list,
+      items: markAllPacked(list.items)
+    };
+
+    setList(updatedList);
+    const encodedData = btoa(JSON.stringify(updatedList));
+    navigate(`/list/${encodedData}`);
+  };
+
   if (!list) {
     return (
       <Box p={2}>
@@ -79,6 +107,7 @@ const ListContainer = () => {
               key={item.id} 
               item={item}
               onToggle={handleToggle}
+              onMarkAllPacked={handleMarkAllPacked}
             />
           ))}
         </List>
