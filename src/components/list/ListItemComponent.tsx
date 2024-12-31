@@ -113,7 +113,7 @@ const ListItemComponent = ({
   console.log(theme);
 
   return (
-    <>
+    <Paper elevation={level} sx={{ m: 2 }}>
       <ListItem disablePadding sx={{ pl: level * 0 }}>
         <ListItemButton
           onClick={handleClick}
@@ -154,7 +154,7 @@ const ListItemComponent = ({
             {hasSubItems && (open ? <ExpandLess /> : <ExpandMore />)}
           </Stack>
           {isInProgress && (
-            <Box sx={{ width: "100%", mt: 1, px: 7 }}>
+            <Box sx={{ width: "100%", mt: 1, px: 0 }}>
               <LinearProgress
                 variant="determinate"
                 value={progress}
@@ -177,19 +177,17 @@ const ListItemComponent = ({
       </ListItem>
       {hasSubItems && (
         <Collapse in={open} timeout="auto" unmountOnExit>
-          <Paper elevation={level} sx={{ p: 2 }}>
-            <List disablePadding>
-              {item.items.map((subItem) => (
-                <ListItemComponent
-                  key={subItem.id}
-                  item={subItem}
-                  level={level + 1}
-                  onToggle={onToggle}
-                  onMarkAllPacked={onMarkAllPacked}
-                />
-              ))}
-            </List>
-          </Paper>
+          <List disablePadding>
+            {item.items.map((subItem) => (
+              <ListItemComponent
+                key={subItem.id}
+                item={subItem}
+                level={level + 1}
+                onToggle={onToggle}
+                onMarkAllPacked={onMarkAllPacked}
+              />
+            ))}
+          </List>
         </Collapse>
       )}
       {hasSubItems && (
@@ -201,7 +199,7 @@ const ListItemComponent = ({
           onConfirm={handleConfirmMarkAll}
         />
       )}
-    </>
+    </Paper>
   );
 };
 
