@@ -6,6 +6,9 @@ import {
   IconButton,
   TextField,
   Box,
+  styled,
+  Typography,
+  Stack,
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -15,6 +18,26 @@ import {
 } from "@mui/icons-material";
 import { Item } from "../../types/packing";
 import { useEditMode } from "../../contexts/EditModeContext";
+
+// Custom styled TextField to match listItem typography
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  "& .MuiInputBase-root": {
+    fontFamily: '"Patrick Hand", cursive',
+    fontSize: "1.5rem",
+    lineHeight: 1.5,
+    fontWeight: 200,
+    "&:before, &:after": {
+      borderBottomColor: theme.palette.primary.main,
+    },
+    "& input": {
+      padding: "0",
+      fontFamily: "inherit",
+      fontSize: "inherit",
+      lineHeight: "inherit",
+      fontWeight: "inherit",
+    },
+  },
+}));
 
 interface EditableListItemProps {
   item?: Item;
@@ -36,11 +59,9 @@ const EditableListItem = ({
   const [name, setName] = useState(item?.name || "");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // When entering edit mode, focus the input
   useEffect(() => {
     if (isEditing) {
       inputRef.current?.focus();
-      // Select all text when editing existing item
       if (item) {
         inputRef.current?.select();
       }
@@ -77,7 +98,6 @@ const EditableListItem = ({
     }
   };
 
-  // If we're not in edit mode and this is a create field, don't render
   if (!editMode && !item) {
     return null;
   }
@@ -87,9 +107,9 @@ const EditableListItem = ({
       disablePadding
       secondaryAction={
         isEditing ? (
-          <Box>
-            <IconButton 
-              edge="end" 
+          <Stack direction="row" spacing={2}>
+            <IconButton
+              edge="end"
               onClick={handleSave}
               color="success"
               disabled={!name.trim()}
@@ -99,9 +119,9 @@ const EditableListItem = ({
             <IconButton edge="end" onClick={handleCancel} color="error">
               <CloseIcon />
             </IconButton>
-          </Box>
+          </Stack>
         ) : editMode ? (
-          <Box>
+          <Stack direction="row" spacing={2}>
             <IconButton edge="end" onClick={handleStartEdit}>
               <EditIcon />
             </IconButton>
@@ -110,23 +130,23 @@ const EditableListItem = ({
                 <DeleteIcon />
               </IconButton>
             )}
-          </Box>
+          </Stack>
         ) : null
       }
     >
-      <ListItemButton 
+      <ListItemButton
         onClick={handleStartEdit}
         disabled={isEditing}
-        sx={{ 
-          cursor: editMode ? 'pointer' : 'default',
+        sx={{
+          cursor: editMode ? "pointer" : "default",
           "&.Mui-disabled": {
             opacity: 1,
-          }
+          },
         }}
       >
         <ListItemText>
           {isEditing ? (
-            <TextField
+            <StyledTextField
               fullWidth
               variant="standard"
               value={name}
@@ -134,18 +154,10 @@ const EditableListItem = ({
               onKeyDown={handleKeyPress}
               inputRef={inputRef}
               placeholder={item ? "Edit item" : "New item"}
-              InputProps={{
-                sx: {
-                  fontSize: "inherit",
-                  "& .MuiInput-input": {
-                    padding: 0,
-                  },
-                },
-              }}
               autoComplete="off"
             />
           ) : (
-            item?.name || ""
+            <Typography variant="listItem">{item?.name || ""}</Typography>
           )}
         </ListItemText>
       </ListItemButton>
