@@ -115,10 +115,7 @@ const PackingListContainer = () => {
   }
 
   return (
-    <Box>
-      <Typography variant="h5" component="h1" sx={{ p: 2 }}>
-        {list.name}
-      </Typography>
+    <Box p={2}>
       <PackingList
         list={{ id: "root", name: list.name, items: list.items }}
         onToggle={handleToggle}
