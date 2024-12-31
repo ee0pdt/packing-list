@@ -1,14 +1,20 @@
 import React from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
+import { HashRouter as Router } from "react-router-dom";
 import { Layout } from "./components/common/Layout";
 import { theme } from "./theme";
+import ListContainer from "./components/list/ListContainer";
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Layout>{/* Your other components will go here */}</Layout>
-    </ThemeProvider>
+    <Router>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Layout>
+          <ListContainer />
+        </Layout>
+      </ThemeProvider>
+    </Router>
   );
 };
 
