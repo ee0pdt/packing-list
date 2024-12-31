@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   List as MuiList,
   Paper,
@@ -101,9 +101,29 @@ const PackingList = ({
 
   const handleConfirmMarkAll = () => {
     if (onMarkAllPacked) {
-      onMarkAllPacked(list.id, progress !== 100);
+      const willBePacked = progress !== 100;
+      onMarkAllPacked(list.id, willBePacked);
+      // Update expansion state based on the action
+      setIsExpanded(!willBePacked);
     }
     setDialogOpen(false);
+  };
+
+  const handleItemToggle = (id: string) => {
+    onToggle(id);
+    // Calculate new state after toggle
+    const itemToToggle = list.items.find(item => isItem(item) && item.id === id);
+    if (itemToToggle && isItem(itemToToggle)) {
+      const willBePacked = !itemToToggle.checked;
+      // Only collapse if this toggle will complete the list
+      if (willBePacked && packedCount === totalCount - 1) {
+        setIsExpanded(false);
+      }
+      // Expand if we're unpacking any item
+      if (!willBePacked && !isExpanded) {
+        setIsExpanded(true);
+      }
+    }
   };
 
   return (
@@ -169,7 +189,7 @@ const PackingList = ({
                 <PackingListItem
                   key={item.id}
                   item={item}
-                  onToggle={onToggle}
+                  onToggle={handleItemToggle}
                 />
               ) : (
                 <PackingList
