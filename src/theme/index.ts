@@ -7,6 +7,9 @@ const themeOptions: ThemeOptions = {
   palette,
   typography,
   components,
+  shape: {
+    borderRadius: 8, // Consistent, slightly rounded corners
+  },
   spacing: 8, // Base spacing unit in pixels
   breakpoints: {
     values: {
@@ -19,4 +22,7 @@ const themeOptions: ThemeOptions = {
   },
 };
 
-export const theme = createTheme(themeOptions);
+// Create a responsive theme
+const theme = createTheme(themeOptions);
+
+export default theme;

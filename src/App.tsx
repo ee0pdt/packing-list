@@ -4,7 +4,7 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/common/Layout";
 
 import ListContainer from "./components/list/ListContainer";
-import theme from "./theme/theme";
+import theme from "./theme/index";
 
 const App: React.FC = () => {
   return (

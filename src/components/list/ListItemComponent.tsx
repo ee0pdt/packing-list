@@ -14,6 +14,7 @@ import {
   useTheme,
   Paper,
   IconButton,
+  Typography,
 } from "@mui/material";
 import { ExpandLess, ExpandMore, MoreVert } from "@mui/icons-material";
 import { ListItem as PackingListItem, isList } from "../../types/packing";
@@ -162,18 +163,21 @@ const ListItemComponent = ({
             )}
             <ListItemText
               primary={
-                hasSubItems
-                  ? `${item.name} (${directCheckedCount}/${directChildCount})`
-                  : item.name
+                <Typography
+                  variant="listItem"
+                  sx={{
+                    textDecoration: checkState.checked
+                      ? "line-through"
+                      : "none",
+                    textDecorationThickness: "0.2rem",
+                    textDecorationColor: "rgba(0,20,0,0.5)",
+                  }}
+                >
+                  {hasSubItems
+                    ? `${item.name} (${directCheckedCount}/${directChildCount})`
+                    : item.name}
+                </Typography>
               }
-              sx={{
-                "& .MuiTypography-root": {
-                  fontWeight: "bold",
-                  textDecoration: checkState.checked ? "line-through" : "none",
-                  textDecorationThickness: "0.2rem", // Adjust pixel value as needed
-                  textDecorationColor: "rgba(0,120,0,0.5)",
-                },
-              }}
             />
             {!hasSubItems ? (
               <Checkbox
