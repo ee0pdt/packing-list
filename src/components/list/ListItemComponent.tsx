@@ -123,11 +123,15 @@ const ListItemComponent = ({
         <ListItemButton onClick={handleClick} title={buttonTitle}>
           <>
             {hasSubItems && (
-              <ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 32 }}>
                 {open ? <ExpandLess /> : <ExpandMore />}
               </ListItemIcon>
             )}
-            <ListItemText primary={item.name} />
+            <ListItemText
+              primary={
+                hasSubItems ? `${item.name} [${directChildCount}]` : item.name
+              }
+            />
             {!hasSubItems ? (
               <Checkbox
                 onClick={handleCheckboxClick}

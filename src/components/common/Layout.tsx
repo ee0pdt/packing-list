@@ -8,7 +8,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({
   children,
-  title = "Packing List",
+  title = "PackApp",
 }) => {
   return (
     <Box
