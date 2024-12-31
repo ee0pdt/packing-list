@@ -51,6 +51,23 @@ const ListContainer = () => {
     navigate(`/list/${encodedData}`);
   };
 
+  const markSubItemsAsPacked = (items: ListItem[]): ListItem[] => {
+    return items.map(item => {
+      if ('items' in item) {
+        // For a sublist, recursively mark all its items
+        return {
+          ...item,
+          items: markSubItemsAsPacked(item.items)
+        };
+      }
+      // For a regular item, mark it as checked
+      return {
+        ...item,
+        checked: true
+      };
+    });
+  };
+
   const handleMarkAllPacked = (id: string) => {
     if (!list) return;
 
@@ -60,20 +77,7 @@ const ListContainer = () => {
           // If this is the target list, mark all its items as checked
           return {
             ...item,
-            items: item.items.map(subItem => {
-              if ('items' in subItem) {
-                // If it's a sublist, recursively mark its items
-                return {
-                  ...subItem,
-                  items: markAllPacked(subItem.items)
-                };
-              }
-              // If it's a regular item, mark it as checked
-              return {
-                ...subItem,
-                checked: true
-              };
-            })
+            items: markSubItemsAsPacked(item.items)
           };
         }
         // If this isn't the target list but has subitems, 
