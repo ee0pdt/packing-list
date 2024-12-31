@@ -18,6 +18,7 @@ import {
   Item,
 } from "../../types/packing";
 import PackingListItem from "./PackingListItem";
+import MarkPackedDialog from "../dialogs/MarkPackedDialog";
 
 interface PackingListProps {
   list: List;
@@ -37,6 +38,7 @@ const PackingList = ({
   level = 0,
 }: PackingListProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const theme = useTheme();
 
   // Memoized recursive function to check if an item or list is packed
@@ -51,19 +53,28 @@ const PackingList = ({
   }, []);
 
   // Calculate packed items and progress
-  const { packedCount, totalCount, progress } = useMemo(() => {
+  const { packedCount, totalCount, progress, allSubItems } = useMemo(() => {
     let packed = 0;
     let total = 0;
+    let allItems = 0; // This counts ALL items, including those in sublists
 
     const countItems = (items: PackingListItemType[]) => {
       items.forEach((item) => {
         if (isItem(item)) {
           total++;
+          allItems++;
           if (item.checked) packed++;
         } else {
-          const isPacked = item.items.every((subItem) => isPackedMemo(subItem));
           total++;
-          if (isPacked) packed++;
+          if (item.items.every((subItem) => isPackedMemo(subItem))) packed++;
+          // Recursively count items in sublists
+          item.items.forEach((subItem) => {
+            if (isItem(subItem)) {
+              allItems++;
+            } else {
+              countItems(subItem.items);
+            }
+          });
         }
       });
     };
@@ -75,6 +86,7 @@ const PackingList = ({
       packedCount: packed,
       totalCount: total,
       progress: progressValue,
+      allSubItems: allItems,
     };
   }, [list.items, isPackedMemo]);
 
@@ -82,85 +94,105 @@ const PackingList = ({
     setIsExpanded(!isExpanded);
   };
 
-  const handleMarkAll = (e: React.MouseEvent) => {
+  const handleMarkAllClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setDialogOpen(true);
+  };
+
+  const handleConfirmMarkAll = () => {
     if (onMarkAllPacked) {
-      // Mark as packed if not all items are currently packed
       onMarkAllPacked(list.id, progress !== 100);
     }
+    setDialogOpen(false);
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        pl: 2,
-        mt: 2,
-        overflow: "hidden",
-        borderRadius: "8px 0 0 8px",
-        backgroundColor: !isExpanded
-          ? progress === 100
-            ? theme.palette.success.dark
-            : theme.palette.info.dark
-          : theme.palette.background.paper,
-      }}
-    >
-      <ListItem
-        disablePadding
+    <>
+      <Paper
+        elevation={0}
         sx={{
+          pl: 2,
+          mt: 2,
+          overflow: "hidden",
+          borderRadius: "8px 0 0 8px",
           backgroundColor: !isExpanded
             ? progress === 100
-              ? theme.palette.success.light
-              : theme.palette.info.light
+              ? theme.palette.success.dark
+              : theme.palette.info.dark
             : theme.palette.background.paper,
         }}
       >
-        <ListItemButton onClick={handleExpand}>
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            {isExpanded ? <ExpandLess /> : <ExpandMore />}
-          </ListItemIcon>
-          <Typography variant="listItem">
-            {list.name} ({packedCount}/{totalCount})
-          </Typography>
-          <IconButton edge="end" onClick={handleMarkAll}>
-            <MoreVert />
-          </IconButton>
-        </ListItemButton>
-      </ListItem>
-
-      {isExpanded && (
-        <LinearProgress
-          variant="determinate"
-          value={progress}
+        <ListItem
+          disablePadding
           sx={{
-            "& .MuiLinearProgress-bar": {
-              backgroundColor:
-                progress === 100
-                  ? theme.palette.success.main
-                  : theme.palette.info.main,
-            },
+            backgroundColor: !isExpanded
+              ? progress === 100
+                ? theme.palette.success.light
+                : theme.palette.info.light
+              : theme.palette.background.paper,
           }}
-        />
-      )}
+          secondaryAction={
+            <IconButton onClick={handleMarkAllClick}>
+              <MoreVert />
+            </IconButton>
+          }
+        >
+          <ListItemButton onClick={handleExpand}>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              {isExpanded ? <ExpandLess /> : <ExpandMore />}
+            </ListItemIcon>
+            <Typography variant="listItem">
+              {list.name} ({packedCount}/{totalCount})
+            </Typography>
+          </ListItemButton>
+        </ListItem>
 
-      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <MuiList disablePadding>
-          {list.items.map((item) =>
-            isItem(item) ? (
-              <PackingListItem key={item.id} item={item} onToggle={onToggle} />
-            ) : (
-              <PackingList
-                key={item.id}
-                list={item}
-                onToggle={onToggle}
-                onMarkAllPacked={onMarkAllPacked}
-                level={level + 1}
-              />
-            ),
-          )}
-        </MuiList>
-      </Collapse>
-    </Paper>
+        {isExpanded && (
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor:
+                  progress === 100
+                    ? theme.palette.success.main
+                    : theme.palette.info.main,
+              },
+            }}
+          />
+        )}
+
+        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+          <MuiList disablePadding>
+            {list.items.map((item) =>
+              isItem(item) ? (
+                <PackingListItem
+                  key={item.id}
+                  item={item}
+                  onToggle={onToggle}
+                />
+              ) : (
+                <PackingList
+                  key={item.id}
+                  list={item}
+                  onToggle={onToggle}
+                  onMarkAllPacked={onMarkAllPacked}
+                  level={level + 1}
+                />
+              ),
+            )}
+          </MuiList>
+        </Collapse>
+      </Paper>
+
+      <MarkPackedDialog
+        open={dialogOpen}
+        itemCount={allSubItems}
+        isUnpacking={progress === 100}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={handleConfirmMarkAll}
+      />
+    </>
   );
 };
 
