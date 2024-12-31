@@ -1,5 +1,6 @@
 import React from "react";
-import { AppBar, Box, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, Switch, FormControlLabel } from "@mui/material";
+import { useEditMode } from "../../contexts/EditModeContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,8 @@ export const Layout: React.FC<LayoutProps> = ({
   children,
   title = "PackApp",
 }) => {
+  const { editMode, setEditMode } = useEditMode();
+
   return (
     <Box
       sx={{
@@ -34,6 +37,17 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             {title}
           </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={editMode}
+                onChange={(e) => setEditMode(e.target.checked)}
+                color="default"
+              />
+            }
+            label="Edit Mode"
+            sx={{ color: 'white' }}
+          />
         </Toolbar>
       </AppBar>
 

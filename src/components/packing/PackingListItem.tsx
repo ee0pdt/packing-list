@@ -4,8 +4,11 @@ import {
   ListItemText,
   Checkbox,
   Typography,
+  IconButton,
 } from "@mui/material";
+import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { Item } from "../../types/packing";
+import { useEditMode } from "../../contexts/EditModeContext";
 
 interface PackingListItemProps {
   item: Item;
@@ -13,8 +16,12 @@ interface PackingListItemProps {
 }
 
 const PackingListItem = ({ item, onToggle }: PackingListItemProps) => {
+  const { editMode } = useEditMode();
+
   const handleClick = () => {
-    onToggle(item.id);
+    if (!editMode) {
+      onToggle(item.id);
+    }
   };
 
   return (
@@ -26,6 +33,25 @@ const PackingListItem = ({ item, onToggle }: PackingListItemProps) => {
             ? theme.palette.success.light
             : theme.palette.background.paper,
       }}
+      secondaryAction={
+        editMode ? (
+          <>
+            <IconButton edge="end" aria-label="edit">
+              <EditIcon />
+            </IconButton>
+            <IconButton edge="end" aria-label="delete">
+              <DeleteIcon />
+            </IconButton>
+          </>
+        ) : (
+          <Checkbox
+            edge="end"
+            checked={item.checked}
+            disableRipple
+            color={item.checked ? "success" : "info"}
+          />
+        )
+      }
     >
       <ListItemButton onClick={handleClick}>
         <ListItemText
@@ -41,12 +67,6 @@ const PackingListItem = ({ item, onToggle }: PackingListItemProps) => {
               {item.name}
             </Typography>
           }
-        />
-        <Checkbox
-          edge="end"
-          checked={item.checked}
-          disableRipple
-          color={item.checked ? "success" : "info"}
         />
       </ListItemButton>
     </ListItem>
