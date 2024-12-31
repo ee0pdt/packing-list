@@ -23,6 +23,8 @@ import MarkPackedDialog from "../dialogs/MarkPackedDialog";
 interface PackingListProps {
   list: List;
   onToggle: (id: string) => void;
+  onDeleteItem: (id: string) => void;
+  onEditItem: (id: string, newName: string) => void;
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
   level?: number;
 }
@@ -34,6 +36,8 @@ const isItem = (item: PackingListItemType): item is Item => {
 const PackingList = ({
   list,
   onToggle,
+  onDeleteItem,
+  onEditItem,
   onMarkAllPacked,
   level = 0,
 }: PackingListProps) => {
@@ -41,7 +45,6 @@ const PackingList = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const theme = useTheme();
 
-  // Memoized recursive function to check if an item or list is packed
   const isPackedMemo = useMemo(() => {
     const checkPacked = (item: PackingListItemType): boolean => {
       if (isItem(item)) {
@@ -52,11 +55,10 @@ const PackingList = ({
     return checkPacked;
   }, []);
 
-  // Calculate packed items and progress
   const { packedCount, totalCount, progress, allSubItems } = useMemo(() => {
     let packed = 0;
     let total = 0;
-    let allItems = 0; // This counts ALL items, including those in sublists
+    let allItems = 0;
 
     const countItems = (items: PackingListItemType[]) => {
       items.forEach((item) => {
@@ -67,7 +69,6 @@ const PackingList = ({
         } else {
           total++;
           if (item.items.every((subItem) => isPackedMemo(subItem))) packed++;
-          // Recursively count items in sublists
           item.items.forEach((subItem) => {
             if (isItem(subItem)) {
               allItems++;
@@ -103,7 +104,6 @@ const PackingList = ({
     if (onMarkAllPacked) {
       const willBePacked = progress !== 100;
       onMarkAllPacked(list.id, willBePacked);
-      // Update expansion state based on the action
       setIsExpanded(!willBePacked);
     }
     setDialogOpen(false);
@@ -111,15 +111,12 @@ const PackingList = ({
 
   const handleItemToggle = (id: string) => {
     onToggle(id);
-    // Calculate new state after toggle
     const itemToToggle = list.items.find(item => isItem(item) && item.id === id);
     if (itemToToggle && isItem(itemToToggle)) {
       const willBePacked = !itemToToggle.checked;
-      // Only collapse if this toggle will complete the list
       if (willBePacked && packedCount === totalCount - 1) {
         setIsExpanded(false);
       }
-      // Expand if we're unpacking any item
       if (!willBePacked && !isExpanded) {
         setIsExpanded(true);
       }
@@ -190,16 +187,20 @@ const PackingList = ({
                   key={item.id}
                   item={item}
                   onToggle={handleItemToggle}
+                  onDelete={onDeleteItem}
+                  onEdit={onEditItem}
                 />
               ) : (
                 <PackingList
                   key={item.id}
                   list={item}
                   onToggle={onToggle}
+                  onDeleteItem={onDeleteItem}
+                  onEditItem={onEditItem}
                   onMarkAllPacked={onMarkAllPacked}
                   level={level + 1}
                 />
-              ),
+              )
             )}
           </MuiList>
         </Collapse>

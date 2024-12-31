@@ -4,25 +4,56 @@ import {
   ListItemText,
   Checkbox,
   Typography,
-  IconButton,
 } from "@mui/material";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { Item } from "../../types/packing";
 import { useEditMode } from "../../contexts/EditModeContext";
+import DeleteItemDialog from "../dialogs/DeleteItemDialog";
+import { useState } from "react";
+import EditableListItem from "./EditableListItem";
 
 interface PackingListItemProps {
   item: Item;
   onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+  onEdit: (id: string, newName: string) => void;
 }
 
-const PackingListItem = ({ item, onToggle }: PackingListItemProps) => {
+const PackingListItem = ({ item, onToggle, onDelete, onEdit }: PackingListItemProps) => {
   const { editMode } = useEditMode();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const handleClick = () => {
+  const handleToggle = () => {
     if (!editMode) {
       onToggle(item.id);
     }
   };
+
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(item.id);
+    setDeleteDialogOpen(false);
+  };
+
+  if (editMode) {
+    return (
+      <>
+        <EditableListItem
+          item={item}
+          onSave={(newName) => onEdit(item.id, newName)}
+          onDelete={handleDelete}
+        />
+        <DeleteItemDialog
+          open={deleteDialogOpen}
+          itemName={item.name}
+          onClose={() => setDeleteDialogOpen(false)}
+          onConfirm={handleConfirmDelete}
+        />
+      </>
+    );
+  }
 
   return (
     <ListItem
@@ -34,26 +65,15 @@ const PackingListItem = ({ item, onToggle }: PackingListItemProps) => {
             : theme.palette.background.paper,
       }}
       secondaryAction={
-        editMode ? (
-          <>
-            <IconButton edge="end" aria-label="edit">
-              <EditIcon />
-            </IconButton>
-            <IconButton edge="end" aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          </>
-        ) : (
-          <Checkbox
-            edge="end"
-            checked={item.checked}
-            disableRipple
-            color={item.checked ? "success" : "info"}
-          />
-        )
+        <Checkbox
+          edge="end"
+          checked={item.checked}
+          disableRipple
+          color={item.checked ? "success" : "info"}
+        />
       }
     >
-      <ListItemButton onClick={handleClick}>
+      <ListItemButton onClick={handleToggle}>
         <ListItemText
           primary={
             <Typography

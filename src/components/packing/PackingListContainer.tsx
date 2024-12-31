@@ -38,10 +38,8 @@ const PackingListContainer = () => {
     const toggleItem = (items: ListItem[]): ListItem[] => {
       return items.map((item) => {
         if (item.id === id) {
-          // Toggle if it's a checkable item
           return "checked" in item ? { ...item, checked: !item.checked } : item;
         }
-        // Recurse if it's a list
         if ("items" in item) {
           return {
             ...item,
@@ -55,6 +53,61 @@ const PackingListContainer = () => {
     const updatedList = {
       ...list,
       items: toggleItem(list.items),
+    };
+
+    setList(updatedList);
+    updateListInUrl(updatedList);
+  };
+
+  const handleDeleteItem = (id: string) => {
+    if (!list) return;
+
+    const deleteItem = (items: ListItem[]): ListItem[] => {
+      const filteredItems = items.filter(item => item.id !== id);
+      return filteredItems.map(item => {
+        if ("items" in item) {
+          return {
+            ...item,
+            items: deleteItem(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    const updatedList = {
+      ...list,
+      items: deleteItem(list.items),
+    };
+
+    setList(updatedList);
+    updateListInUrl(updatedList);
+  };
+
+  const handleEditItem = (id: string, newName: string) => {
+    if (!list) return;
+
+    const editItem = (items: ListItem[]): ListItem[] => {
+      return items.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            name: newName
+          };
+        }
+        if ("items" in item) {
+          return {
+            ...item,
+            items: editItem(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    const updatedList = {
+      ...list,
+      items: editItem(list.items),
     };
 
     setList(updatedList);
@@ -119,6 +172,8 @@ const PackingListContainer = () => {
       <PackingList
         list={{ id: "root", name: list.name, items: list.items }}
         onToggle={handleToggle}
+        onDeleteItem={handleDeleteItem}
+        onEditItem={handleEditItem}
         onMarkAllPacked={handleMarkAllPacked}
       />
     </Box>
