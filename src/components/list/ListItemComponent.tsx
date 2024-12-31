@@ -15,7 +15,7 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { ExpandLess, ExpandMore, MoreVert } from "@mui/icons-material";
 import { ListItem as PackingListItem, isList } from "../../types/packing";
 import MarkPackedDialog from "../dialogs/MarkPackedDialog";
 
@@ -118,78 +118,49 @@ const ListItemComponent = ({
   const buttonTitle = hasSubItems ? collapseTitle : packTitle;
 
   return (
-    <Paper elevation={level} sx={{ m: 2 }}>
-      <ListItem
-        disablePadding
-        secondaryAction={
-          !hasSubItems ? (
-            <Checkbox
-              onClick={handleCheckboxClick}
-              edge="start"
-              checked={checkState.checked}
-              indeterminate={checkState.indeterminate}
-              disableRipple
-              color={checkState.checked ? "success" : "info"}
-            />
-          ) : (
-            <IconButton edge="end" onClick={handleCheckboxClick}>
-              ...
-            </IconButton>
-          )
-        }
-      >
-        <ListItemButton
-          onClick={handleClick}
-          title={buttonTitle}
-          sx={{ flexDirection: "column", alignItems: "flex-start" }}
-        >
-          <Stack
-            direction="row"
-            spacing={0}
-            alignItems="center"
-            sx={{ width: "100%" }}
-          >
+    <Paper elevation={hasSubItems ? level + 1 : 0} sx={{ m: 2 }}>
+      <ListItem disablePadding>
+        <ListItemButton onClick={handleClick} title={buttonTitle}>
+          <>
             {hasSubItems && (
-              <>
-                {/* <Chip
-                  label={directChildCount}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  sx={{ marginInlineEnd: 1, minWidth: "32px" }}
-                /> */}
+              <ListItemIcon>
                 {open ? <ExpandLess /> : <ExpandMore />}
-              </>
+              </ListItemIcon>
             )}
             <ListItemText primary={item.name} />
-            {/* <ListItemIcon onClick={handleCheckboxClick}>
+            {!hasSubItems ? (
               <Checkbox
+                onClick={handleCheckboxClick}
                 edge="start"
                 checked={checkState.checked}
                 indeterminate={checkState.indeterminate}
                 disableRipple
                 color={checkState.checked ? "success" : "info"}
               />
-            </ListItemIcon> */}
-          </Stack>
-          {isInProgress && (
-            <Box sx={{ width: "100%", mt: 1, px: 0 }}>
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                sx={{
-                  "& .MuiLinearProgress-bar": {
-                    backgroundColor:
-                      progress == 100
-                        ? theme.palette.success.main
-                        : theme.palette.info.main,
-                  },
-                }}
-              />
-            </Box>
-          )}
+            ) : (
+              <IconButton aria-label="mark all" onClick={handleCheckboxClick}>
+                <MoreVert />
+              </IconButton>
+            )}
+          </>
         </ListItemButton>
       </ListItem>
+      {isInProgress && (
+        <Box sx={{ width: "100%", mt: 1, px: 0 }}>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor:
+                  progress == 100
+                    ? theme.palette.success.main
+                    : theme.palette.info.main,
+              },
+            }}
+          />
+        </Box>
+      )}
       {hasSubItems && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List disablePadding>
