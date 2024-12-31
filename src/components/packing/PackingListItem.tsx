@@ -18,12 +18,20 @@ const PackingListItem = ({ item, onToggle }: PackingListItemProps) => {
   };
 
   return (
-    <ListItem disablePadding>
+    <ListItem
+      disablePadding
+      sx={{
+        backgroundColor: (theme) =>
+          item.checked
+            ? theme.palette.success.light
+            : theme.palette.background.paper,
+      }}
+    >
       <ListItemButton onClick={handleClick}>
         <ListItemText
           primary={
             <Typography
-              variant="body1"
+              variant="listItem"
               sx={{
                 textDecoration: item.checked ? "line-through" : "none",
                 textDecorationThickness: "0.2rem",

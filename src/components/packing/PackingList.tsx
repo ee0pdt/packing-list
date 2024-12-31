@@ -65,15 +65,26 @@ const PackingList = ({
         mt: level > 0 ? 0 : 2,
         overflow: "hidden",
         borderRadius: "8px 0 0 8px",
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor:
+          progress === 100
+            ? theme.palette.success.dark
+            : theme.palette.info.dark,
       }}
     >
-      <ListItem disablePadding>
+      <ListItem
+        disablePadding
+        sx={{
+          backgroundColor: (theme) =>
+            progress === 100 && !isExpanded
+              ? theme.palette.success.light
+              : theme.palette.background.paper,
+        }}
+      >
         <ListItemButton onClick={handleExpand}>
           <ListItemIcon sx={{ minWidth: 32 }}>
             {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </ListItemIcon>
-          <Typography variant="body1">
+          <Typography variant="listItem">
             {list.name} ({checkedCount}/{list.items.length})
           </Typography>
           <IconButton
