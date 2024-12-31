@@ -7,6 +7,8 @@ import {
   Checkbox,
   Collapse,
   List,
+  Chip,
+  Stack,
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ListItem as PackingListItem, isList } from '../../types/packing';
@@ -19,6 +21,7 @@ interface ListItemComponentProps {
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
 }
 
+// We'll keep this for the dialog
 const countSubItems = (item: PackingListItem): number => {
   if (!isList(item)) {
     return 0;
@@ -55,7 +58,10 @@ const ListItemComponent = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const hasSubItems = isList(item);
   const checkState = calculateCheckState(item);
-  const subItemCount = hasSubItems ? countSubItems(item) : 0;
+  // Keep total count for dialog
+  const totalItemCount = hasSubItems ? countSubItems(item) : 0;
+  // New direct children count
+  const directChildCount = hasSubItems ? item.items.length : 0;
 
   const handleClick = () => {
     if (hasSubItems) {
@@ -92,7 +98,18 @@ const ListItemComponent = ({
               disableRipple
             />
           </ListItemIcon>
-          <ListItemText primary={item.name} />
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
+            <ListItemText primary={item.name} />
+            {hasSubItems && (
+              <Chip
+                label={directChildCount}
+                size="small"
+                color="primary"
+                variant="outlined"
+                sx={{ ml: 1, minWidth: '32px' }}
+              />
+            )}
+          </Stack>
           {hasSubItems && (open ? <ExpandLess /> : <ExpandMore />)}
         </ListItemButton>
       </ListItem>
@@ -114,7 +131,7 @@ const ListItemComponent = ({
       {hasSubItems && (
         <MarkPackedDialog
           open={dialogOpen}
-          itemCount={subItemCount}
+          itemCount={totalItemCount}
           isUnpacking={checkState.checked}
           onClose={() => setDialogOpen(false)}
           onConfirm={handleConfirmMarkAll}
