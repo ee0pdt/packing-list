@@ -3,8 +3,8 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/common/Layout";
 
-import ListContainer from "./components/list/ListContainer";
 import theme from "./theme/index";
+import PackingListContainer from "./components/packing/PackingListContainer";
 
 const App: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ const App: React.FC = () => {
         <CssBaseline />
         <Layout>
           <Routes>
-            <Route path="/list/*" element={<ListContainer />} />
+            <Route path="/list/*" element={<PackingListContainer />} />
           </Routes>
         </Layout>
       </ThemeProvider>

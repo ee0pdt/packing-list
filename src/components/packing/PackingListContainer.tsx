@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-import { Paper, List, Typography, Box } from "@mui/material";
-import { ListItem } from "../../types/packing";
+import { Box, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import ListItemComponent from "./ListItemComponent";
+import { ListItem } from "../../types/packing";
+import PackingList from "./PackingList";
 
-const ListContainer = () => {
-  const [list, setList] = useState<{ name: string; items: ListItem[] } | null>(
-    null,
-  );
+interface PackingListData {
+  name: string;
+  items: ListItem[];
+}
+
+const PackingListContainer = () => {
+  const [list, setList] = useState<PackingListData | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Load list from URL
   useEffect(() => {
-    const encodedData = location.pathname.slice(6);
+    const encodedData = location.pathname.slice(6); // Remove /list/ prefix
     if (encodedData) {
       try {
         const decodedData = JSON.parse(atob(encodedData));
@@ -23,14 +27,21 @@ const ListContainer = () => {
     }
   }, [location]);
 
+  const updateListInUrl = (newList: PackingListData) => {
+    const encodedData = btoa(JSON.stringify(newList));
+    navigate(`/list/${encodedData}`);
+  };
+
   const handleToggle = (id: string) => {
     if (!list) return;
 
     const toggleItem = (items: ListItem[]): ListItem[] => {
       return items.map((item) => {
         if (item.id === id) {
+          // Toggle if it's a checkable item
           return "checked" in item ? { ...item, checked: !item.checked } : item;
         }
+        // Recurse if it's a list
         if ("items" in item) {
           return {
             ...item,
@@ -47,51 +58,41 @@ const ListContainer = () => {
     };
 
     setList(updatedList);
-    const encodedData = btoa(JSON.stringify(updatedList));
-    navigate(`/list/${encodedData}`);
-  };
-
-  const markSubItems = (
-    items: ListItem[],
-    markAsPacked: boolean,
-  ): ListItem[] => {
-    return items.map((item) => {
-      if ("items" in item) {
-        // For a sublist, recursively mark all its items
-        return {
-          ...item,
-          items: markSubItems(item.items, markAsPacked),
-        };
-      }
-      // For a regular item, mark it as checked/unchecked
-      return {
-        ...item,
-        checked: markAsPacked,
-      };
-    });
+    updateListInUrl(updatedList);
   };
 
   const handleMarkAllPacked = (id: string, markAsPacked: boolean) => {
     if (!list) return;
 
+    const markSubItems = (items: ListItem[]): ListItem[] => {
+      return items.map((item) => {
+        if ("items" in item) {
+          return {
+            ...item,
+            items: markSubItems(item.items),
+          };
+        }
+        return {
+          ...item,
+          checked: markAsPacked,
+        };
+      });
+    };
+
     const markAll = (items: ListItem[]): ListItem[] => {
       return items.map((item) => {
         if (item.id === id && "items" in item) {
-          // If this is the target list, mark all its items
           return {
             ...item,
-            items: markSubItems(item.items, markAsPacked),
+            items: markSubItems(item.items),
           };
         }
-        // If this isn't the target list but has subitems,
-        // keep searching for the target
         if ("items" in item) {
           return {
             ...item,
             items: markAll(item.items),
           };
         }
-        // Leave other items unchanged
         return item;
       });
     };
@@ -102,16 +103,13 @@ const ListContainer = () => {
     };
 
     setList(updatedList);
-    const encodedData = btoa(JSON.stringify(updatedList));
-    navigate(`/list/${encodedData}`);
+    updateListInUrl(updatedList);
   };
 
   if (!list) {
     return (
       <Box p={2}>
-        <Paper elevation={2} sx={{ maxWidth: 600, p: 2 }}>
-          <Typography>Loading list...</Typography>
-        </Paper>
+        <Typography>Loading list...</Typography>
       </Box>
     );
   }
@@ -121,18 +119,13 @@ const ListContainer = () => {
       <Typography variant="h5" component="h1" sx={{ p: 2 }}>
         {list.name}
       </Typography>
-      <List>
-        {list.items.map((item) => (
-          <ListItemComponent
-            key={item.id}
-            item={item}
-            onToggle={handleToggle}
-            onMarkAllPacked={handleMarkAllPacked}
-          />
-        ))}
-      </List>
+      <PackingList
+        list={{ id: "root", name: list.name, items: list.items }}
+        onToggle={handleToggle}
+        onMarkAllPacked={handleMarkAllPacked}
+      />
     </Box>
   );
 };
 
-export default ListContainer;
+export default PackingListContainer;
