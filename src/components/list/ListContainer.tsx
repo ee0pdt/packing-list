@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Paper, List, Typography } from '@mui/material';
+import { Paper, List, Typography, Box } from '@mui/material';
 import { ListItem } from '../../types/packing';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ListItemComponent from './ListItemComponent';
@@ -10,15 +10,10 @@ const ListContainer = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get everything after /list/
     const encodedData = location.pathname.slice(6);
-    console.log('Location:', location);
-    console.log('Encoded data:', encodedData);
-
     if (encodedData) {
       try {
         const decodedData = JSON.parse(atob(encodedData));
-        console.log('Decoded data:', decodedData);
         setList(decodedData);
       } catch (error) {
         console.error('Failed to decode list data:', error);
@@ -58,31 +53,37 @@ const ListContainer = () => {
 
   if (!list) {
     return (
-      <Paper elevation={2} className="p-4">
-        <Typography>Loading list...</Typography>
-        <Typography variant="body2" color="text.secondary">
-          Path: {location.pathname}
-          Hash: {location.hash}
-        </Typography>
-      </Paper>
+      <Box p={2}>
+        <Paper elevation={2} sx={{ maxWidth: 600, p: 2 }}>
+          <Typography>Loading list...</Typography>
+        </Paper>
+      </Box>
     );
   }
 
   return (
-    <Paper elevation={2} className="p-4">
-      <Typography variant="h5" component="h1" className="mb-4">
-        {list.name}
-      </Typography>
-      <List>
-        {list.items.map(item => (
-          <ListItemComponent 
-            key={item.id} 
-            item={item}
-            onToggle={handleToggle}
-          />
-        ))}
-      </List>
-    </Paper>
+    <Box p={2}>
+      <Paper 
+        elevation={2} 
+        sx={{ 
+          maxWidth: 600,
+          p: 2,
+        }}
+      >
+        <Typography variant="h5" component="h1" sx={{ mb: 2 }}>
+          {list.name}
+        </Typography>
+        <List>
+          {list.items.map(item => (
+            <ListItemComponent 
+              key={item.id} 
+              item={item}
+              onToggle={handleToggle}
+            />
+          ))}
+        </List>
+      </Paper>
+    </Box>
   );
 };
 
