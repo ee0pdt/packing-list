@@ -109,24 +109,23 @@ const EditableListItem = ({
         isEditing ? (
           <Stack direction="row" spacing={2}>
             <IconButton
-              edge="end"
               onClick={handleSave}
               color="success"
               disabled={!name.trim()}
             >
               <SaveIcon />
             </IconButton>
-            <IconButton edge="end" onClick={handleCancel} color="error">
+            <IconButton onClick={handleCancel} color="error">
               <CloseIcon />
             </IconButton>
           </Stack>
         ) : editMode ? (
           <Stack direction="row" spacing={2}>
-            <IconButton edge="end" onClick={handleStartEdit}>
+            <IconButton onClick={handleStartEdit}>
               <EditIcon />
             </IconButton>
             {item && onDelete && (
-              <IconButton edge="end" onClick={onDelete} color="error">
+              <IconButton onClick={onDelete} color="error">
                 <DeleteIcon />
               </IconButton>
             )}

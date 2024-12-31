@@ -72,7 +72,6 @@ const PackingListItem = ({
       secondaryAction={
         <Checkbox
           onClick={handleToggle}
-          edge="end"
           checked={item.checked}
           disableRipple
           color={item.checked ? "success" : "info"}
