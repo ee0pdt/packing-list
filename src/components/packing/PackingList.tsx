@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   List as MuiList,
   Paper,
@@ -26,6 +26,10 @@ interface PackingListProps {
   level?: number;
 }
 
+const isItem = (item: PackingListItemType): item is Item => {
+  return "checked" in item;
+};
+
 const PackingList = ({
   list,
   onToggle,
@@ -35,25 +39,55 @@ const PackingList = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const theme = useTheme();
 
-  // Calculate progress
-  const checkedCount = list.items.filter((item) =>
-    "checked" in item ? item.checked : false,
-  ).length;
-  const progress = (checkedCount / list.items.length) * 100;
+  // Memoized recursive function to check if an item or list is packed
+  const isPackedMemo = useMemo(() => {
+    const checkPacked = (item: PackingListItemType): boolean => {
+      if (isItem(item)) {
+        return item.checked;
+      }
+      return item.items.every((subItem) => checkPacked(subItem));
+    };
+    return checkPacked;
+  }, []);
+
+  // Calculate packed items and progress
+  const { packedCount, totalCount, progress } = useMemo(() => {
+    let packed = 0;
+    let total = 0;
+
+    const countItems = (items: PackingListItemType[]) => {
+      items.forEach((item) => {
+        if (isItem(item)) {
+          total++;
+          if (item.checked) packed++;
+        } else {
+          const isPacked = item.items.every((subItem) => isPackedMemo(subItem));
+          total++;
+          if (isPacked) packed++;
+        }
+      });
+    };
+
+    countItems(list.items);
+    const progressValue = total > 0 ? (packed / total) * 100 : 0;
+
+    return {
+      packedCount: packed,
+      totalCount: total,
+      progress: progressValue,
+    };
+  }, [list.items, isPackedMemo]);
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const handleMarkAll = () => {
+  const handleMarkAll = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onMarkAllPacked) {
-      // Mark as packed if not all items are currently checked
-      onMarkAllPacked(list.id, checkedCount < list.items.length);
+      // Mark as packed if not all items are currently packed
+      onMarkAllPacked(list.id, progress !== 100);
     }
-  };
-
-  const isItem = (item: PackingListItemType): item is Item => {
-    return "checked" in item;
   };
 
   return (
@@ -61,23 +95,24 @@ const PackingList = ({
       elevation={0}
       sx={{
         pl: 2,
-        m: level > 0 ? 0 : 2,
-        mt: level > 0 ? 0 : 2,
+        mt: 2,
         overflow: "hidden",
         borderRadius: "8px 0 0 8px",
-        backgroundColor:
-          progress === 100
+        backgroundColor: !isExpanded
+          ? progress === 100
             ? theme.palette.success.dark
-            : theme.palette.info.dark,
+            : theme.palette.info.dark
+          : theme.palette.background.paper,
       }}
     >
       <ListItem
         disablePadding
         sx={{
-          backgroundColor: (theme) =>
-            progress === 100 && !isExpanded
+          backgroundColor: !isExpanded
+            ? progress === 100
               ? theme.palette.success.light
-              : theme.palette.background.paper,
+              : theme.palette.info.light
+            : theme.palette.background.paper,
         }}
       >
         <ListItemButton onClick={handleExpand}>
@@ -85,15 +120,9 @@ const PackingList = ({
             {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </ListItemIcon>
           <Typography variant="listItem">
-            {list.name} ({checkedCount}/{list.items.length})
+            {list.name} ({packedCount}/{totalCount})
           </Typography>
-          <IconButton
-            edge="end"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleMarkAll();
-            }}
-          >
+          <IconButton edge="end" onClick={handleMarkAll}>
             <MoreVert />
           </IconButton>
         </ListItemButton>
