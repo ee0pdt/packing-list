@@ -2,8 +2,9 @@ import React from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/common/Layout";
-import { theme } from "./theme";
+
 import ListContainer from "./components/list/ListContainer";
+import theme from "./theme/theme";
 
 const App: React.FC = () => {
   return (

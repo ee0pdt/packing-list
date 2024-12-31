@@ -40,31 +40,10 @@ export const Layout: React.FC<LayoutProps> = ({
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          maxWidth: "md",
-          height: "100%",
-          bgcolor: "background.paper",
+          maxWidth: "sm",
         }}
       >
         {children}
-      </Box>
-
-      <Box
-        component="footer"
-        sx={{
-          py: 2,
-          px: 2,
-          backgroundColor: "background.paper",
-          borderTop: 1,
-          borderColor: "divider",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          Built with MUI
-        </Typography>
       </Box>
     </Box>
   );

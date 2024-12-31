@@ -36,10 +36,10 @@ const countSubItems = (item: PackingListItem): number => {
   }, 0);
 };
 
-const calculateDirectProgress = (item: PackingListItem): number => {
+const calculateCheckedDirectChildren = (item: PackingListItem): number => {
   if (!isList(item)) return 0;
 
-  const checkedDirectChildren = item.items.reduce((count, child) => {
+  return item.items.reduce((count, child) => {
     // For direct children, count them as complete if:
     // - They're a single item and checked
     // - They're a list and their check state is complete
@@ -49,8 +49,12 @@ const calculateDirectProgress = (item: PackingListItem): number => {
     }
     return count + (child.checked ? 1 : 0);
   }, 0);
+};
 
-  return (checkedDirectChildren / item.items.length) * 100;
+const calculateDirectProgress = (item: PackingListItem): number => {
+  if (!isList(item)) return 0;
+
+  return (calculateCheckedDirectChildren(item) / item.items.length) * 100;
 };
 
 const calculateCheckState = (
@@ -88,6 +92,9 @@ const ListItemComponent = ({
   const checkState = calculateCheckState(item);
   const totalItemCount = hasSubItems ? countSubItems(item) : 0;
   const directChildCount = hasSubItems ? item.items.length : 0;
+  const directCheckedCount = hasSubItems
+    ? calculateCheckedDirectChildren(item)
+    : 0;
   const progress = hasSubItems ? calculateDirectProgress(item) : 0;
   const isInProgress = hasSubItems && progress >= 0 && progress <= 100;
 
@@ -118,7 +125,10 @@ const ListItemComponent = ({
   const buttonTitle = hasSubItems ? collapseTitle : packTitle;
 
   return (
-    <Paper elevation={hasSubItems ? level + 1 : 0} sx={{ m: 2 }}>
+    <Paper
+      elevation={level > 0 ? 0 : 1}
+      sx={{ pl: level > 0 ? 3 : 0, m: level > 0 ? 0 : 2 }}
+    >
       <ListItem disablePadding>
         <ListItemButton onClick={handleClick} title={buttonTitle}>
           <>
@@ -129,7 +139,9 @@ const ListItemComponent = ({
             )}
             <ListItemText
               primary={
-                hasSubItems ? `${item.name} [${directChildCount}]` : item.name
+                hasSubItems
+                  ? `${item.name} (${directCheckedCount}/${directChildCount})`
+                  : item.name
               }
             />
             {!hasSubItems ? (
