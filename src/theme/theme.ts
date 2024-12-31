@@ -80,6 +80,13 @@ const baseTheme = createTheme({
         },
       },
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: "8px 0 0 8px", // Rounded corners on the left
+        },
+      },
+    },
   },
 });
 

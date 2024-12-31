@@ -127,11 +127,18 @@ const ListItemComponent = ({
 
   return (
     <Paper
-      elevation={level > 0 ? 0 : 1}
+      elevation={0}
       sx={{
-        pl: level > 0 ? 3 : 0,
+        pl: hasSubItems ? 2 : 0,
         m: level > 0 ? 0 : 2,
+        mt: hasSubItems ? 2 : 0,
         overflow: "hidden",
+        backgroundColor: (theme) =>
+          hasSubItems && !open
+            ? progress == 100
+              ? theme.palette.success.main
+              : theme.palette.info.main
+            : theme.palette.background.paper,
       }}
     >
       <ListItem
@@ -177,20 +184,18 @@ const ListItemComponent = ({
         </ListItemButton>
       </ListItem>
       {isInProgress && open && (
-        <Box sx={{ width: "100%", mt: 0, px: 0 }}>
-          <LinearProgress
-            variant="determinate"
-            value={progress}
-            sx={{
-              "& .MuiLinearProgress-bar": {
-                backgroundColor:
-                  progress == 100
-                    ? theme.palette.success.main
-                    : theme.palette.info.main,
-              },
-            }}
-          />
-        </Box>
+        <LinearProgress
+          variant="determinate"
+          value={progress}
+          sx={{
+            "& .MuiLinearProgress-bar": {
+              backgroundColor:
+                progress == 100
+                  ? theme.palette.success.main
+                  : theme.palette.info.main,
+            },
+          }}
+        />
       )}
       {hasSubItems && (
         <Collapse in={open} timeout="auto" unmountOnExit>
