@@ -133,6 +133,7 @@ const ListItemComponent = ({
         m: level > 0 ? 0 : 2,
         mt: hasSubItems ? 2 : 0,
         overflow: "hidden",
+        borderRadius: "8px 0 0 8px", // Rounded corners on the left
         backgroundColor: (theme) =>
           hasSubItems && !open
             ? progress == 100
@@ -165,6 +166,14 @@ const ListItemComponent = ({
                   ? `${item.name} (${directCheckedCount}/${directChildCount})`
                   : item.name
               }
+              sx={{
+                "& .MuiTypography-root": {
+                  fontWeight: "bold",
+                  textDecoration: checkState.checked ? "line-through" : "none",
+                  textDecorationThickness: "0.2rem", // Adjust pixel value as needed
+                  textDecorationColor: "rgba(0,120,0,0.5)",
+                },
+              }}
             />
             {!hasSubItems ? (
               <Checkbox
