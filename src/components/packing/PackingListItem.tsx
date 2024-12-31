@@ -18,7 +18,12 @@ interface PackingListItemProps {
   onEdit: (id: string, newName: string) => void;
 }
 
-const PackingListItem = ({ item, onToggle, onDelete, onEdit }: PackingListItemProps) => {
+const PackingListItem = ({
+  item,
+  onToggle,
+  onDelete,
+  onEdit,
+}: PackingListItemProps) => {
   const { editMode } = useEditMode();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -66,6 +71,7 @@ const PackingListItem = ({ item, onToggle, onDelete, onEdit }: PackingListItemPr
       }}
       secondaryAction={
         <Checkbox
+          onClick={handleToggle}
           edge="end"
           checked={item.checked}
           disableRipple
