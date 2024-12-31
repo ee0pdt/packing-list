@@ -43,7 +43,7 @@ export const typography: TypographyOptions = {
     },
   },
   listItem: {
-    fontFamily: '"Gochi Hand", cursive',
+    fontFamily: '"Patrick Hand", cursive',
     fontSize: "1.5rem",
     lineHeight: 1.5,
     fontWeight: 200,
