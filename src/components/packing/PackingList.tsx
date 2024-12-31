@@ -7,11 +7,10 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  IconButton,
   LinearProgress,
   useTheme,
 } from "@mui/material";
-import { ExpandLess, ExpandMore, MoreVert } from "@mui/icons-material";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
   List,
   ListItem as PackingListItemType,
@@ -19,6 +18,8 @@ import {
 } from "../../types/packing";
 import PackingListItem from "./PackingListItem";
 import MarkPackedDialog from "../dialogs/MarkPackedDialog";
+import { PackingListMenu } from "./PackingListMenu";
+import { useEditMode } from "../../contexts/EditModeContext";
 
 interface PackingListProps {
   list: List;
@@ -43,6 +44,7 @@ const PackingList = ({
 }: PackingListProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { editMode } = useEditMode();
   const theme = useTheme();
 
   const isPackedMemo = useMemo(() => {
@@ -111,7 +113,9 @@ const PackingList = ({
 
   const handleItemToggle = (id: string) => {
     onToggle(id);
-    const itemToToggle = list.items.find(item => isItem(item) && item.id === id);
+    const itemToToggle = list.items.find(
+      (item) => isItem(item) && item.id === id,
+    );
     if (itemToToggle && isItem(itemToToggle)) {
       const willBePacked = !itemToToggle.checked;
       if (willBePacked && packedCount === totalCount - 1) {
@@ -149,9 +153,12 @@ const PackingList = ({
               : theme.palette.background.paper,
           }}
           secondaryAction={
-            <IconButton onClick={handleMarkAllClick}>
-              <MoreVert />
-            </IconButton>
+            <PackingListMenu
+              isEditMode={editMode}
+              progress={progress}
+              onMarkAll={handleMarkAllClick}
+              disabled={!onMarkAllPacked}
+            />
           }
         >
           <ListItemButton onClick={handleExpand}>
@@ -200,7 +207,7 @@ const PackingList = ({
                   onMarkAllPacked={onMarkAllPacked}
                   level={level + 1}
                 />
-              )
+              ),
             )}
           </MuiList>
         </Collapse>
