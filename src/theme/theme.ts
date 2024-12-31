@@ -35,8 +35,13 @@ const baseTheme = createTheme({
     },
     success: {
       main: green[500],
-      light: green[300],
+      light: green[50],
       dark: green[700],
+    },
+    info: {
+      main: blue[500],
+      light: blue[50],
+      dark: blue[700],
     },
   },
 

@@ -18,6 +18,7 @@ import {
 import { ExpandLess, ExpandMore, MoreVert } from "@mui/icons-material";
 import { ListItem as PackingListItem, isList } from "../../types/packing";
 import MarkPackedDialog from "../dialogs/MarkPackedDialog";
+import { HashRouter } from "react-router-dom";
 
 interface ListItemComponentProps {
   item: PackingListItem;
@@ -127,9 +128,23 @@ const ListItemComponent = ({
   return (
     <Paper
       elevation={level > 0 ? 0 : 1}
-      sx={{ pl: level > 0 ? 3 : 0, m: level > 0 ? 0 : 2 }}
+      sx={{
+        pl: level > 0 ? 3 : 0,
+        m: level > 0 ? 0 : 2,
+        overflow: "hidden",
+      }}
     >
-      <ListItem disablePadding>
+      <ListItem
+        disablePadding
+        sx={{
+          backgroundColor: (theme) =>
+            hasSubItems && !open
+              ? progress == 100
+                ? theme.palette.success.light
+                : theme.palette.info.light
+              : "background.paper",
+        }}
+      >
         <ListItemButton onClick={handleClick} title={buttonTitle}>
           <>
             {hasSubItems && (
@@ -161,8 +176,8 @@ const ListItemComponent = ({
           </>
         </ListItemButton>
       </ListItem>
-      {isInProgress && (
-        <Box sx={{ width: "100%", mt: 1, px: 0 }}>
+      {isInProgress && open && (
+        <Box sx={{ width: "100%", mt: 0, px: 0 }}>
           <LinearProgress
             variant="determinate"
             value={progress}
