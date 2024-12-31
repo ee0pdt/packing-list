@@ -13,6 +13,7 @@ import {
   Box,
   useTheme,
   Paper,
+  IconButton,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { ListItem as PackingListItem, isList } from "../../types/packing";
@@ -118,7 +119,25 @@ const ListItemComponent = ({
 
   return (
     <Paper elevation={level} sx={{ m: 2 }}>
-      <ListItem disablePadding>
+      <ListItem
+        disablePadding
+        secondaryAction={
+          !hasSubItems ? (
+            <Checkbox
+              onClick={handleCheckboxClick}
+              edge="start"
+              checked={checkState.checked}
+              indeterminate={checkState.indeterminate}
+              disableRipple
+              color={checkState.checked ? "success" : "info"}
+            />
+          ) : (
+            <IconButton edge="end" onClick={handleCheckboxClick}>
+              ...
+            </IconButton>
+          )
+        }
+      >
         <ListItemButton
           onClick={handleClick}
           title={buttonTitle}
@@ -126,11 +145,24 @@ const ListItemComponent = ({
         >
           <Stack
             direction="row"
-            spacing={1}
+            spacing={0}
             alignItems="center"
             sx={{ width: "100%" }}
           >
-            <ListItemIcon onClick={handleCheckboxClick}>
+            {hasSubItems && (
+              <>
+                {/* <Chip
+                  label={directChildCount}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ marginInlineEnd: 1, minWidth: "32px" }}
+                /> */}
+                {open ? <ExpandLess /> : <ExpandMore />}
+              </>
+            )}
+            <ListItemText primary={item.name} />
+            {/* <ListItemIcon onClick={handleCheckboxClick}>
               <Checkbox
                 edge="start"
                 checked={checkState.checked}
@@ -138,20 +170,7 @@ const ListItemComponent = ({
                 disableRipple
                 color={checkState.checked ? "success" : "info"}
               />
-            </ListItemIcon>
-
-            <ListItemText primary={item.name} />
-            {hasSubItems && (
-              <Chip
-                label={directChildCount}
-                size="small"
-                color="primary"
-                variant="outlined"
-                sx={{ ml: 1, minWidth: "32px" }}
-              />
-            )}
-
-            {hasSubItems && (open ? <ExpandLess /> : <ExpandMore />)}
+            </ListItemIcon> */}
           </Stack>
           {isInProgress && (
             <Box sx={{ width: "100%", mt: 1, px: 0 }}>
