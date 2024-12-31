@@ -1,6 +1,6 @@
 import React from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { HashRouter as Router } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/common/Layout";
 import { theme } from "./theme";
 import ListContainer from "./components/list/ListContainer";
@@ -11,7 +11,9 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Layout>
-          <ListContainer />
+          <Routes>
+            <Route path="/list/*" element={<ListContainer />} />
+          </Routes>
         </Layout>
       </ThemeProvider>
     </Router>

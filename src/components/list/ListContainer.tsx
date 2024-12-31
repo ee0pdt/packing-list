@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Paper, List, Typography } from '@mui/material';
 import { ListItem } from '../../types/packing';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ListItemComponent from './ListItemComponent';
 
 const ListContainer = () => {
   const [list, setList] = useState<{ name: string; items: ListItem[] } | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // With HashRouter, the path is in location.hash including the '#' prefix
-    const parts = location.hash.split('/list/');
-    if (parts.length === 2) {
+    // Get everything after /list/
+    const encodedData = location.pathname.slice(6);
+    console.log('Location:', location);
+    console.log('Encoded data:', encodedData);
+
+    if (encodedData) {
       try {
-        const encodedData = parts[1];
         const decodedData = JSON.parse(atob(encodedData));
+        console.log('Decoded data:', decodedData);
         setList(decodedData);
       } catch (error) {
         console.error('Failed to decode list data:', error);
@@ -21,10 +26,44 @@ const ListContainer = () => {
     }
   }, [location]);
 
+  const handleToggle = (id: string) => {
+    if (!list) return;
+
+    const toggleItem = (items: ListItem[]): ListItem[] => {
+      return items.map(item => {
+        if (item.id === id) {
+          return 'checked' in item 
+            ? { ...item, checked: !item.checked }
+            : item;
+        }
+        if ('items' in item) {
+          return {
+            ...item,
+            items: toggleItem(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    const updatedList = {
+      ...list,
+      items: toggleItem(list.items)
+    };
+
+    setList(updatedList);
+    const encodedData = btoa(JSON.stringify(updatedList));
+    navigate(`/list/${encodedData}`);
+  };
+
   if (!list) {
     return (
       <Paper elevation={2} className="p-4">
         <Typography>Loading list...</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Path: {location.pathname}
+          Hash: {location.hash}
+        </Typography>
       </Paper>
     );
   }
@@ -36,7 +75,11 @@ const ListContainer = () => {
       </Typography>
       <List>
         {list.items.map(item => (
-          <Typography key={item.id}>{item.name}</Typography>
+          <ListItemComponent 
+            key={item.id} 
+            item={item}
+            onToggle={handleToggle}
+          />
         ))}
       </List>
     </Paper>
