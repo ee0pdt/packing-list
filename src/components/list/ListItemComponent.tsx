@@ -93,6 +93,8 @@ const ListItemComponent = ({
   const handleClick = () => {
     if (hasSubItems) {
       setOpen(!open);
+    } else {
+      onToggle?.(item.id);
     }
   };
 
@@ -110,13 +112,16 @@ const ListItemComponent = ({
     setDialogOpen(false);
   };
 
-  console.log(theme);
+  const collapseTitle = open ? "Click to collapse" : "Click to expand";
+  const packTitle = checkState.checked ? "Mark as Unpacked" : "Mark as Packed";
+  const buttonTitle = hasSubItems ? collapseTitle : packTitle;
 
   return (
     <Paper elevation={level} sx={{ m: 2 }}>
-      <ListItem disablePadding sx={{ pl: level * 0 }}>
+      <ListItem disablePadding>
         <ListItemButton
           onClick={handleClick}
+          title={buttonTitle}
           sx={{ flexDirection: "column", alignItems: "flex-start" }}
         >
           <Stack
@@ -134,23 +139,18 @@ const ListItemComponent = ({
                 color={checkState.checked ? "success" : "info"}
               />
             </ListItemIcon>
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              sx={{ flex: 1 }}
-            >
-              <ListItemText primary={item.name} />
-              {hasSubItems && (
-                <Chip
-                  label={directChildCount}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  sx={{ ml: 1, minWidth: "32px" }}
-                />
-              )}
-            </Stack>
+
+            <ListItemText primary={item.name} />
+            {hasSubItems && (
+              <Chip
+                label={directChildCount}
+                size="small"
+                color="primary"
+                variant="outlined"
+                sx={{ ml: 1, minWidth: "32px" }}
+              />
+            )}
+
             {hasSubItems && (open ? <ExpandLess /> : <ExpandMore />)}
           </Stack>
           {isInProgress && (
@@ -159,11 +159,7 @@ const ListItemComponent = ({
                 variant="determinate"
                 value={progress}
                 sx={{
-                  height: 6,
-                  borderRadius: 3,
-                  backgroundColor: "rgba(0, 0, 0, 0.1)",
                   "& .MuiLinearProgress-bar": {
-                    borderRadius: 3,
                     backgroundColor:
                       progress == 100
                         ? theme.palette.success.main
