@@ -17,6 +17,23 @@ interface ListItemComponentProps {
   onToggle?: (id: string) => void;
 }
 
+const calculateCheckState = (item: PackingListItem): { checked: boolean; indeterminate: boolean } => {
+  if (!isList(item)) {
+    return { checked: item.checked, indeterminate: false };
+  }
+
+  const totalItems = item.items.length;
+  const checkedItems = item.items.reduce((count, childItem) => {
+    const childState = calculateCheckState(childItem);
+    return count + (childState.checked ? 1 : 0);
+  }, 0);
+
+  return {
+    checked: checkedItems === totalItems,
+    indeterminate: checkedItems > 0 && checkedItems < totalItems
+  };
+};
+
 const ListItemComponent = ({ 
   item, 
   level = 0,
@@ -24,6 +41,7 @@ const ListItemComponent = ({
 }: ListItemComponentProps) => {
   const [open, setOpen] = useState(true);
   const hasSubItems = isList(item);
+  const checkState = calculateCheckState(item);
 
   const handleClick = () => {
     if (hasSubItems) {
@@ -46,7 +64,8 @@ const ListItemComponent = ({
           <ListItemIcon onClick={handleCheckboxClick}>
             <Checkbox
               edge="start"
-              checked={'checked' in item ? item.checked : false}
+              checked={checkState.checked}
+              indeterminate={checkState.indeterminate}
               disableRipple
             />
           </ListItemIcon>
