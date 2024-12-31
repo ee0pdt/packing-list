@@ -51,33 +51,33 @@ const ListContainer = () => {
     navigate(`/list/${encodedData}`);
   };
 
-  const markSubItemsAsPacked = (items: ListItem[]): ListItem[] => {
+  const markSubItems = (items: ListItem[], markAsPacked: boolean): ListItem[] => {
     return items.map(item => {
       if ('items' in item) {
         // For a sublist, recursively mark all its items
         return {
           ...item,
-          items: markSubItemsAsPacked(item.items)
+          items: markSubItems(item.items, markAsPacked)
         };
       }
-      // For a regular item, mark it as checked
+      // For a regular item, mark it as checked/unchecked
       return {
         ...item,
-        checked: true
+        checked: markAsPacked
       };
     });
   };
 
-  const handleMarkAllPacked = (id: string) => {
+  const handleMarkAllPacked = (id: string, markAsPacked: boolean) => {
     if (!list) return;
 
-    const markAllPacked = (items: ListItem[]): ListItem[] => {
+    const markAll = (items: ListItem[]): ListItem[] => {
       return items.map(item => {
         if (item.id === id && 'items' in item) {
-          // If this is the target list, mark all its items as checked
+          // If this is the target list, mark all its items
           return {
             ...item,
-            items: markSubItemsAsPacked(item.items)
+            items: markSubItems(item.items, markAsPacked)
           };
         }
         // If this isn't the target list but has subitems, 
@@ -85,7 +85,7 @@ const ListContainer = () => {
         if ('items' in item) {
           return {
             ...item,
-            items: markAllPacked(item.items)
+            items: markAll(item.items)
           };
         }
         // Leave other items unchanged
@@ -95,7 +95,7 @@ const ListContainer = () => {
 
     const updatedList = {
       ...list,
-      items: markAllPacked(list.items)
+      items: markAll(list.items)
     };
 
     setList(updatedList);

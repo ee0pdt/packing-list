@@ -16,7 +16,7 @@ interface ListItemComponentProps {
   item: PackingListItem;
   level?: number;
   onToggle?: (id: string) => void;
-  onMarkAllPacked?: (id: string) => void;
+  onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
 }
 
 const countSubItems = (item: PackingListItem): number => {
@@ -65,7 +65,7 @@ const ListItemComponent = ({
 
   const handleCheckboxClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (hasSubItems && !checkState.checked) {
+    if (hasSubItems && (checkState.checked || !checkState.indeterminate)) {
       setDialogOpen(true);
     } else {
       onToggle?.(item.id);
@@ -73,7 +73,7 @@ const ListItemComponent = ({
   };
 
   const handleConfirmMarkAll = () => {
-    onMarkAllPacked?.(item.id);
+    onMarkAllPacked?.(item.id, !checkState.checked);
     setDialogOpen(false);
   };
 
@@ -115,6 +115,7 @@ const ListItemComponent = ({
         <MarkPackedDialog
           open={dialogOpen}
           itemCount={subItemCount}
+          isUnpacking={checkState.checked}
           onClose={() => setDialogOpen(false)}
           onConfirm={handleConfirmMarkAll}
         />

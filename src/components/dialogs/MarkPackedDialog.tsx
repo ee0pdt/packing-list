@@ -10,6 +10,7 @@ import {
 interface MarkPackedDialogProps {
   open: boolean;
   itemCount: number;
+  isUnpacking?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -17,6 +18,7 @@ interface MarkPackedDialogProps {
 const MarkPackedDialog = ({
   open,
   itemCount,
+  isUnpacking = false,
   onClose,
   onConfirm,
 }: MarkPackedDialogProps) => {
@@ -28,18 +30,18 @@ const MarkPackedDialog = ({
       aria-describedby="mark-packed-dialog-description"
     >
       <DialogTitle id="mark-packed-dialog-title">
-        Mark all sub-items as "Packed"?
+        {isUnpacking ? 'Mark all sub-items as "Unpacked"?' : 'Mark all sub-items as "Packed"?'}
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="mark-packed-dialog-description">
-          This will immediately mark all {itemCount} sub-items in this list as packed
+          This will immediately mark all {itemCount} sub-items in this list as {isUnpacking ? 'unpacked' : 'packed'}
           (including any sublists). It cannot be undone.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={onConfirm} autoFocus>
-          Mark as Packed
+          Mark as {isUnpacking ? 'Unpacked' : 'Packed'}
         </Button>
       </DialogActions>
     </Dialog>
