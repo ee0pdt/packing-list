@@ -43,7 +43,7 @@ export const Layout: React.FC<LayoutProps> = ({
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
-          width: "100%",
+          maxWidth: "md",
           height: "100%",
           bgcolor: "background.paper",
         }}
