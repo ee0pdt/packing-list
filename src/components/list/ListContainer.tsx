@@ -56,16 +56,36 @@ const ListContainer = () => {
 
     const markAllPacked = (items: ListItem[]): ListItem[] => {
       return items.map(item => {
-        if ('items' in item) {
-          return item.id === id
-            ? { ...item, items: markAllPacked(item.items) }
-            : { ...item, items: markAllPacked(item.items) };
+        if (item.id === id && 'items' in item) {
+          // If this is the target list, mark all its items as checked
+          return {
+            ...item,
+            items: item.items.map(subItem => {
+              if ('items' in subItem) {
+                // If it's a sublist, recursively mark its items
+                return {
+                  ...subItem,
+                  items: markAllPacked(subItem.items)
+                };
+              }
+              // If it's a regular item, mark it as checked
+              return {
+                ...subItem,
+                checked: true
+              };
+            })
+          };
         }
-        // If we're inside the target list or one of its sublists,
-        // mark the item as checked
-        return 'checked' in item
-          ? { ...item, checked: true }
-          : item;
+        // If this isn't the target list but has subitems, 
+        // keep searching for the target
+        if ('items' in item) {
+          return {
+            ...item,
+            items: markAllPacked(item.items)
+          };
+        }
+        // Leave other items unchanged
+        return item;
       });
     };
 
