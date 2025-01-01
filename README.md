@@ -1,50 +1,76 @@
-# React + TypeScript + Vite
+# Packing List App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and efficient (maybe) packing list application built with React, TypeScript, and MUI. Create, manage, and reuse packing lists for your trips and adventures.
 
-Currently, two official plugins are available:
+## 🌐 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Visit the live application at [https://ee0pdt.github.io/packing-list/](https://ee0pdt.github.io/packing-list/)
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- [TODO] Create and manage multiple packing lists
+- Add, edit, and remove items from your lists
+- Mark items as packed/unpacked
+- [TODO] Responsive design that works on both desktop and mobile
+- [TODO] Dark mode support
 
-- Configure the top-level `parserOptions` property like this:
+## 🚀 Getting Started
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Prerequisites
+
+- Node.js (v20 or later recommended)
+- npm
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/ee0pdt/packing-list.git
+cd packing-list
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+2. Install dependencies:
+```bash
+npm install
 ```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`
+
+### Building for Production
+
+To create a production build:
+```bash
+npm run build
+```
+
+To preview the production build:
+```bash
+npm run preview
+```
+
+## 🛠️ Built With
+
+- [React](https://reactjs.org/) - UI framework
+- [TypeScript](https://www.typescriptlang.org/) - Language
+- [Vite](https://vitejs.dev/) - Build tool
+- [MUI](https://mui.com/) - Component library
+- [React Router](https://reactrouter.com/) - Routing
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/ee0pdt/packing-list/issues).
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
