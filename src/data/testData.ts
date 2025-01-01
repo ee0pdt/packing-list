@@ -18,4 +18,8 @@ export const testData: List = {
       name: 'Toiletries',
       items: [
         { id: 'toothbrush', name: 'Toothbrush', checked: false },
-        {
+        { id: 'toothpaste', name: 'Toothpaste', checked: false }
+      ]
+    }
+  ]
+};
