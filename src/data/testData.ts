@@ -1,4 +1,4 @@
-import { List, ListItem } from '../types/packing';
+import { List } from '../types/packing';
 
 export const testData: List = {
   id: 'summer-holiday-2024',

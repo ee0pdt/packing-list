@@ -8,7 +8,7 @@ import {
 import { Item } from "../../types/packing";
 import { useEditMode } from "../../contexts/EditModeContext";
 import DeleteItemDialog from "../dialogs/DeleteItemDialog";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import EditableListItem from "./EditableListItem";
 
 interface PackingListItemProps {
