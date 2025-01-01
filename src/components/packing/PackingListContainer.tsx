@@ -3,13 +3,13 @@ import { Box, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListItem } from "../../types/packing";
 import PackingList from "./PackingList";
+import { useEditMode } from "../../contexts/EditModeContext";
 
 interface PackingListData {
   name: string;
   items: ListItem[];
 }
 
-// Simple ID generator for development
 const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
@@ -18,10 +18,11 @@ const PackingListContainer = () => {
   const [list, setList] = useState<PackingListData | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { setEditMode } = useEditMode();
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
-  // Load list from URL
   useEffect(() => {
-    const encodedData = location.pathname.slice(6); // Remove /list/ prefix
+    const encodedData = location.pathname.slice(6);
     if (encodedData) {
       try {
         const decodedData = JSON.parse(atob(encodedData));
@@ -40,6 +41,8 @@ const PackingListContainer = () => {
   const handleAddItem = (listId: string) => {
     if (!list) return;
 
+    const newItemId = generateId();
+
     const addNewItem = (items: ListItem[]): ListItem[] => {
       return items.map(item => {
         if (item.id === listId && "items" in item) {
@@ -48,7 +51,7 @@ const PackingListContainer = () => {
             items: [
               ...item.items,
               {
-                id: generateId(),
+                id: newItemId,
                 name: "New Item",
                 checked: false
               }
@@ -70,7 +73,7 @@ const PackingListContainer = () => {
       ? [
           ...list.items,
           {
-            id: generateId(),
+            id: newItemId,
             name: "New Item",
             checked: false
           }
@@ -84,6 +87,10 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
+    
+    // Enable edit mode for the new item
+    setEditMode(true);
+    setEditingItemId(newItemId);
   };
 
   const handleToggle = (id: string) => {
@@ -166,6 +173,7 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
+    setEditingItemId(null);  // Clear editing state after save
   };
 
   const handleMarkAllPacked = (id: string, markAsPacked: boolean) => {
@@ -230,6 +238,7 @@ const PackingListContainer = () => {
         onEditItem={handleEditItem}
         onMarkAllPacked={handleMarkAllPacked}
         onAddItem={handleAddItem}
+        editingItemId={editingItemId}
       />
     </Box>
   );

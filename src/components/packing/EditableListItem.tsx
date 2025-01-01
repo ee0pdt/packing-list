@@ -45,6 +45,7 @@ interface EditableListItemProps {
   onCancel?: () => void;
   onDelete?: () => void;
   initiallyEditing?: boolean;
+  autoFocus?: boolean;
 }
 
 const EditableListItem = ({
@@ -53,20 +54,21 @@ const EditableListItem = ({
   onCancel,
   onDelete,
   initiallyEditing = false,
+  autoFocus = false,
 }: EditableListItemProps) => {
   const { editMode } = useEditMode();
-  const [isEditing, setIsEditing] = useState(initiallyEditing);
+  const [isEditing, setIsEditing] = useState(initiallyEditing || autoFocus);
   const [name, setName] = useState(item?.name || "");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing || autoFocus) {
       inputRef.current?.focus();
       if (item) {
         inputRef.current?.select();
       }
     }
-  }, [isEditing, item]);
+  }, [isEditing, item, autoFocus]);
 
   const handleStartEdit = () => {
     if (editMode) {

@@ -8,7 +8,7 @@ import {
 import { Item } from "../../types/packing";
 import { useEditMode } from "../../contexts/EditModeContext";
 import DeleteItemDialog from "../dialogs/DeleteItemDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditableListItem from "./EditableListItem";
 
 interface PackingListItemProps {
@@ -16,6 +16,7 @@ interface PackingListItemProps {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string, newName: string) => void;
+  isEditing?: boolean;
 }
 
 const PackingListItem = ({
@@ -23,6 +24,7 @@ const PackingListItem = ({
   onToggle,
   onDelete,
   onEdit,
+  isEditing = false,
 }: PackingListItemProps) => {
   const { editMode } = useEditMode();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -42,13 +44,14 @@ const PackingListItem = ({
     setDeleteDialogOpen(false);
   };
 
-  if (editMode) {
+  if (editMode || isEditing) {
     return (
       <>
         <EditableListItem
           item={item}
           onSave={(newName) => onEdit(item.id, newName)}
           onDelete={handleDelete}
+          autoFocus={isEditing}
         />
         <DeleteItemDialog
           open={deleteDialogOpen}

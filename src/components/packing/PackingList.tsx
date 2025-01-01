@@ -27,7 +27,8 @@ interface PackingListProps {
   onDeleteItem: (id: string) => void;
   onEditItem: (id: string, newName: string) => void;
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
-  onAddItem?: (listId: string) => void;  // New prop for adding items
+  onAddItem?: (listId: string) => void;
+  editingItemId?: string | null;
   level?: number;
 }
 
@@ -42,6 +43,7 @@ const PackingList = ({
   onEditItem,
   onMarkAllPacked,
   onAddItem,
+  editingItemId,
   level = 0,
 }: PackingListProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -205,6 +207,7 @@ const PackingList = ({
                   onToggle={handleItemToggle}
                   onDelete={onDeleteItem}
                   onEdit={onEditItem}
+                  isEditing={item.id === editingItemId}
                 />
               ) : (
                 <PackingList
@@ -215,6 +218,7 @@ const PackingList = ({
                   onEditItem={onEditItem}
                   onMarkAllPacked={onMarkAllPacked}
                   onAddItem={onAddItem}
+                  editingItemId={editingItemId}
                   level={level + 1}
                 />
               ),
