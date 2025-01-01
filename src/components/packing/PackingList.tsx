@@ -27,6 +27,7 @@ interface PackingListProps {
   onDeleteItem: (id: string) => void;
   onEditItem: (id: string, newName: string) => void;
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
+  onAddItem?: (listId: string) => void;  // New prop for adding items
   level?: number;
 }
 
@@ -40,6 +41,7 @@ const PackingList = ({
   onDeleteItem,
   onEditItem,
   onMarkAllPacked,
+  onAddItem,
   level = 0,
 }: PackingListProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -111,6 +113,12 @@ const PackingList = ({
     setDialogOpen(false);
   };
 
+  const handleAddItem = () => {
+    if (onAddItem) {
+      onAddItem(list.id);
+    }
+  };
+
   const handleItemToggle = (id: string) => {
     onToggle(id);
     const itemToToggle = list.items.find(
@@ -157,6 +165,7 @@ const PackingList = ({
               isEditMode={editMode}
               progress={progress}
               onMarkAll={handleMarkAllClick}
+              onAdd={onAddItem ? handleAddItem : undefined}
               disabled={!onMarkAllPacked}
             />
           }
@@ -205,6 +214,7 @@ const PackingList = ({
                   onDeleteItem={onDeleteItem}
                   onEditItem={onEditItem}
                   onMarkAllPacked={onMarkAllPacked}
+                  onAddItem={onAddItem}
                   level={level + 1}
                 />
               ),

@@ -9,6 +9,11 @@ interface PackingListData {
   items: ListItem[];
 }
 
+// Simple ID generator for development
+const generateId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+};
+
 const PackingListContainer = () => {
   const [list, setList] = useState<PackingListData | null>(null);
   const location = useLocation();
@@ -30,6 +35,55 @@ const PackingListContainer = () => {
   const updateListInUrl = (newList: PackingListData) => {
     const encodedData = btoa(JSON.stringify(newList));
     navigate(`/list/${encodedData}`);
+  };
+
+  const handleAddItem = (listId: string) => {
+    if (!list) return;
+
+    const addNewItem = (items: ListItem[]): ListItem[] => {
+      return items.map(item => {
+        if (item.id === listId && "items" in item) {
+          return {
+            ...item,
+            items: [
+              ...item.items,
+              {
+                id: generateId(),
+                name: "New Item",
+                checked: false
+              }
+            ]
+          };
+        }
+        if ("items" in item) {
+          return {
+            ...item,
+            items: addNewItem(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    // Handle adding to root list
+    const updatedItems = listId === "root" 
+      ? [
+          ...list.items,
+          {
+            id: generateId(),
+            name: "New Item",
+            checked: false
+          }
+        ]
+      : addNewItem(list.items);
+
+    const updatedList = {
+      ...list,
+      items: updatedItems,
+    };
+
+    setList(updatedList);
+    updateListInUrl(updatedList);
   };
 
   const handleToggle = (id: string) => {
@@ -175,6 +229,7 @@ const PackingListContainer = () => {
         onDeleteItem={handleDeleteItem}
         onEditItem={handleEditItem}
         onMarkAllPacked={handleMarkAllPacked}
+        onAddItem={handleAddItem}
       />
     </Box>
   );
