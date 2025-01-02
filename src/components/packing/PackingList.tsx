@@ -28,6 +28,7 @@ interface PackingListProps {
   onEditItem: (id: string, newName: string) => void;
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
   onAddItem?: (listId: string) => void;
+  onDeleteList?: (id: string) => void;
   editingItemId?: string | null;
   level?: number;
 }
@@ -43,6 +44,7 @@ const PackingList = ({
   onEditItem,
   onMarkAllPacked,
   onAddItem,
+  onDeleteList,
   editingItemId,
   level = 0,
 }: PackingListProps) => {
@@ -121,6 +123,12 @@ const PackingList = ({
     }
   };
 
+  const handleDeleteList = () => {
+    if (onDeleteList) {
+      onDeleteList(list.id);
+    }
+  };
+
   const handleItemToggle = (id: string) => {
     onToggle(id);
     const itemToToggle = list.items.find(
@@ -168,6 +176,7 @@ const PackingList = ({
               progress={progress}
               onMarkAll={handleMarkAllClick}
               onAdd={onAddItem ? handleAddItem : undefined}
+              onDelete={list.id !== "root" ? handleDeleteList : undefined}
               disabled={!onMarkAllPacked}
             />
           }
@@ -218,6 +227,7 @@ const PackingList = ({
                   onEditItem={onEditItem}
                   onMarkAllPacked={onMarkAllPacked}
                   onAddItem={onAddItem}
+                  onDeleteList={onDeleteList}
                   editingItemId={editingItemId}
                   level={level + 1}
                 />

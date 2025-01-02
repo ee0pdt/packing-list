@@ -145,6 +145,31 @@ const PackingListContainer = () => {
     updateListInUrl(updatedList);
   };
 
+  const handleDeleteList = (id: string) => {
+    if (!list) return;
+
+    const deleteList = (items: ListItem[]): ListItem[] => {
+      const filteredItems = items.filter(item => item.id !== id);
+      return filteredItems.map(item => {
+        if ("items" in item) {
+          return {
+            ...item,
+            items: deleteList(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    const updatedList = {
+      ...list,
+      items: deleteList(list.items),
+    };
+
+    setList(updatedList);
+    updateListInUrl(updatedList);
+  };
+
   const handleEditItem = (id: string, newName: string) => {
     if (!list) return;
 
@@ -238,6 +263,7 @@ const PackingListContainer = () => {
         onEditItem={handleEditItem}
         onMarkAllPacked={handleMarkAllPacked}
         onAddItem={handleAddItem}
+        onDeleteList={handleDeleteList}
         editingItemId={editingItemId}
       />
     </Box>
