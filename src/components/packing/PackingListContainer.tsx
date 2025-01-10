@@ -256,6 +256,47 @@ const PackingListContainer = () => {
     setEditingItemId(null);  // Clear editing state after save
   };
 
+  const handleEditList = (id: string, newName: string) => {
+    if (!list) return;
+
+    const editList = (items: ListItem[]): ListItem[] => {
+      return items.map(item => {
+        if (item.id === id && "items" in item) {
+          return {
+            ...item,
+            name: newName
+          };
+        }
+        if ("items" in item) {
+          return {
+            ...item,
+            items: editList(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    // Special handling for root list
+    if (id === "root") {
+      const updatedList = {
+        ...list,
+        name: newName
+      };
+      setList(updatedList);
+      updateListInUrl(updatedList);
+    } else {
+      const updatedList = {
+        ...list,
+        items: editList(list.items),
+      };
+      setList(updatedList);
+      updateListInUrl(updatedList);
+    }
+    
+    setEditingItemId(null);  // Clear editing state after save
+  };
+
   const handleMarkAllPacked = (id: string, markAsPacked: boolean) => {
     if (!list) return;
 
@@ -316,6 +357,7 @@ const PackingListContainer = () => {
         onToggle={handleToggle}
         onDeleteItem={handleDeleteItem}
         onEditItem={handleEditItem}
+        onEditList={handleEditList}
         onMarkAllPacked={handleMarkAllPacked}
         onAddItem={handleAddItem}
         onAddSublist={handleAddSublist}

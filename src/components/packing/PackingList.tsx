@@ -2,13 +2,10 @@ import { useState, useMemo } from "react";
 import {
   List as MuiList,
   Paper,
-  Typography,
   Collapse,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
   LinearProgress,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
@@ -17,6 +14,7 @@ import {
   Item,
 } from "../../types/packing";
 import PackingListItem from "./PackingListItem";
+import EditableListHeader from "./EditableListHeader";
 import MarkPackedDialog from "../dialogs/MarkPackedDialog";
 import { PackingListMenu } from "./PackingListMenu";
 import { useEditMode } from "../../contexts/EditModeContext";
@@ -26,9 +24,10 @@ interface PackingListProps {
   onToggle: (id: string) => void;
   onDeleteItem: (id: string) => void;
   onEditItem: (id: string, newName: string) => void;
+  onEditList: (id: string, newName: string) => void;
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
   onAddItem?: (listId: string) => void;
-  onAddSublist?: (listId: string) => void;  // New prop
+  onAddSublist?: (listId: string) => void;
   onDeleteList?: (id: string) => void;
   editingItemId?: string | null;
   level?: number;
@@ -43,6 +42,7 @@ const PackingList = ({
   onToggle,
   onDeleteItem,
   onEditItem,
+  onEditList,
   onMarkAllPacked,
   onAddItem,
   onAddSublist,
@@ -52,6 +52,7 @@ const PackingList = ({
 }: PackingListProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const { editMode } = useEditMode();
   const theme = useTheme();
 
@@ -132,9 +133,18 @@ const PackingList = ({
   };
 
   const handleDeleteList = () => {
-    if (onDeleteList) {
+    if (onDeleteList && list.id !== "root") {
       onDeleteList(list.id);
     }
+  };
+
+  const handleEditList = (newName: string) => {
+    onEditList(list.id, newName);
+    setIsEditing(false);
+  };
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
   };
 
   const handleItemToggle = (id: string) => {
@@ -153,6 +163,12 @@ const PackingList = ({
     }
   };
 
+  const expandCollapseButton = (
+    <IconButton onClick={handleExpand} size="small">
+      {isExpanded ? <ExpandLess /> : <ExpandMore />}
+    </IconButton>
+  );
+
   return (
     <>
       <Paper
@@ -169,36 +185,37 @@ const PackingList = ({
             : theme.palette.background.paper,
         }}
       >
-        <ListItem
-          disablePadding
-          sx={{
+        <div
+          style={{
             backgroundColor: !isExpanded
               ? progress === 100
                 ? theme.palette.success.light
                 : theme.palette.info.light
               : theme.palette.background.paper,
           }}
-          secondaryAction={
-            <PackingListMenu
-              isEditMode={editMode}
-              progress={progress}
-              onMarkAll={handleMarkAllClick}
-              onAdd={onAddItem ? handleAddItem : undefined}
-              onAddSublist={onAddSublist ? handleAddSublist : undefined}
-              onDelete={list.id !== "root" ? handleDeleteList : undefined}
-              disabled={!onMarkAllPacked}
-            />
-          }
         >
-          <ListItemButton onClick={handleExpand}>
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              {isExpanded ? <ExpandLess /> : <ExpandMore />}
-            </ListItemIcon>
-            <Typography variant="listItem">
-              {list.name} ({packedCount}/{totalCount})
-            </Typography>
-          </ListItemButton>
-        </ListItem>
+          <EditableListHeader
+            list={{...list, name: `${list.name} (${packedCount}/${totalCount})`}}
+            onSave={handleEditList}
+            isEditing={isEditing}
+            onClick={handleExpand}
+            suffix={
+              <>
+                {expandCollapseButton}
+                <PackingListMenu
+                  isEditMode={editMode}
+                  progress={progress}
+                  onMarkAll={handleMarkAllClick}
+                  onAdd={onAddItem ? handleAddItem : undefined}
+                  onAddSublist={onAddSublist ? handleAddSublist : undefined}
+                  onEdit={handleStartEdit}
+                  onDelete={list.id !== "root" ? handleDeleteList : undefined}
+                  disabled={!onMarkAllPacked}
+                />
+              </>
+            }
+          />
+        </div>
 
         {isExpanded && (
           <LinearProgress
@@ -234,6 +251,7 @@ const PackingList = ({
                   onToggle={onToggle}
                   onDeleteItem={onDeleteItem}
                   onEditItem={onEditItem}
+                  onEditList={onEditList}
                   onMarkAllPacked={onMarkAllPacked}
                   onAddItem={onAddItem}
                   onAddSublist={onAddSublist}

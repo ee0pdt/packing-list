@@ -1,30 +1,37 @@
-import React, { useState } from "react";
-import { Menu, MenuItem, IconButton, Divider } from "@mui/material";
-import { MoreVert } from "@mui/icons-material";
+import { IconButton, Menu, MenuItem, Stack } from "@mui/material";
+import {
+  MoreVert as MoreVertIcon,
+  AddCircleOutline as AddCircleOutlineIcon,
+  Folder as FolderIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
+import { useState } from "react";
 
 interface PackingListMenuProps {
-  isEditMode?: boolean;
+  isEditMode: boolean;
   progress: number;
-  onMarkAll: (e: React.MouseEvent) => void;
+  onMarkAll: (event: React.MouseEvent) => void;
   onAdd?: () => void;
   onAddSublist?: () => void;
+  onEdit?: () => void;
   onDelete?: () => void;
   disabled?: boolean;
 }
 
-export const PackingListMenu: React.FC<PackingListMenuProps> = ({
-  isEditMode = false,
+export const PackingListMenu = ({
+  isEditMode,
   progress,
   onMarkAll,
   onAdd,
   onAddSublist,
+  onEdit,
   onDelete,
-  disabled = false,
-}) => {
+  disabled,
+}: PackingListMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
@@ -33,73 +40,58 @@ export const PackingListMenu: React.FC<PackingListMenuProps> = ({
     setAnchorEl(null);
   };
 
-  const handleMarkAll = (event: React.MouseEvent) => {
-    onMarkAll(event);
+  const handleMenuItemClick = (handler: () => void) => {
+    handler();
     handleClose();
-  };
-
-  const handleAdd = (event: React.MouseEvent) => {
-    if (onAdd) {
-      event.stopPropagation();
-      onAdd();
-      handleClose();
-    }
-  };
-
-  const handleAddSublist = (event: React.MouseEvent) => {
-    if (onAddSublist) {
-      event.stopPropagation();
-      onAddSublist();
-      handleClose();
-    }
-  };
-
-  const handleDelete = (event: React.MouseEvent) => {
-    if (onDelete) {
-      event.stopPropagation();
-      onDelete();
-      handleClose();
-    }
   };
 
   return (
     <>
-      <IconButton
-        onClick={handleMenuOpen}
-        disabled={disabled}
-        aria-controls={open ? "list-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-      >
-        <MoreVert />
+      <IconButton onClick={handleClick}>
+        <MoreVertIcon />
       </IconButton>
-      <Menu
-        id="list-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        onClick={(e) => e.stopPropagation()}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        {onAdd && (
-          <MenuItem onClick={handleAdd}>
-            Add Item
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+        {isEditMode && onAdd && (
+          <MenuItem onClick={() => handleMenuItemClick(onAdd)}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <AddCircleOutlineIcon fontSize="small" />
+              Add Item
+            </Stack>
           </MenuItem>
         )}
-        {onAddSublist && (
-          <MenuItem onClick={handleAddSublist}>
-            Add Sublist
+        
+        {isEditMode && onAddSublist && (
+          <MenuItem onClick={() => handleMenuItemClick(onAddSublist)}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <FolderIcon fontSize="small" />
+              Add Sublist
+            </Stack>
           </MenuItem>
         )}
-        <MenuItem onClick={handleMarkAll} disabled={isEditMode}>
-          Mark all as {progress === 100 ? "Unpacked" : "Packed"}
-        </MenuItem>
-        {onDelete && (
-          <>
-            <Divider />
-            <MenuItem onClick={handleDelete}>Delete List</MenuItem>
-          </>
+
+        {isEditMode && onEdit && (
+          <MenuItem onClick={() => handleMenuItemClick(onEdit)}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <EditIcon fontSize="small" />
+              Rename List
+            </Stack>
+          </MenuItem>
+        )}
+
+        {!disabled && (
+          <MenuItem onClick={(e) => handleMenuItemClick(() => onMarkAll(e))}>
+            {progress === 100 ? "Mark All Unpacked" : "Mark All Packed"}
+          </MenuItem>
+        )}
+
+        {isEditMode && onDelete && (
+          <MenuItem onClick={() => handleMenuItemClick(onDelete)}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'error.main' }}>
+              <DeleteIcon fontSize="small" />
+              Delete List
+            </Stack>
+          </MenuItem>
         )}
       </Menu>
     </>
