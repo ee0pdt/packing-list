@@ -4,7 +4,12 @@ import {
   ListItemText,
   Checkbox,
   Typography,
+  Box,
+  IconButton,
+  Fade,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Item } from "../../types/packing";
 import { useEditMode } from "../../contexts/EditModeContext";
 import DeleteItemDialog from "../dialogs/DeleteItemDialog";
@@ -30,6 +35,8 @@ const PackingListItem = ({
 }: PackingListItemProps) => {
   const { editMode } = useEditMode();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isItemEditing, setIsItemEditing] = useState(isEditing);
+  const [isHovering, setIsHovering] = useState(false);
   const isTouchDevice = typeof window !== "undefined" && 
     ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
@@ -41,10 +48,8 @@ const PackingListItem = ({
 
   const handleDelete = () => {
     if (isTouchDevice) {
-      // Direct delete on mobile
       onDelete(item.id);
     } else {
-      // Show confirmation on desktop
       setDeleteDialogOpen(true);
     }
   };
@@ -54,14 +59,22 @@ const PackingListItem = ({
     setDeleteDialogOpen(false);
   };
 
-  if (editMode || isEditing) {
+  const handleEdit = () => {
+    setIsItemEditing(true);
+  };
+
+  if (editMode || isItemEditing) {
     return (
       <>
         <EditableListItem
           item={item}
-          onSave={(newName) => onEdit(item.id, newName)}
+          onSave={(newName) => {
+            onEdit(item.id, newName);
+            setIsItemEditing(false);
+          }}
+          onCancel={() => setIsItemEditing(false)}
           onDelete={handleDelete}
-          autoFocus={isEditing}
+          autoFocus={isItemEditing}
         />
         {!isTouchDevice && (
           <DeleteItemDialog
@@ -78,6 +91,8 @@ const PackingListItem = ({
   const itemContent = (
     <ListItem
       disablePadding
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
       sx={{
         backgroundColor: (theme) =>
           item.checked
@@ -85,12 +100,34 @@ const PackingListItem = ({
             : theme.palette.background.paper,
       }}
       secondaryAction={
-        <Checkbox
-          onClick={handleToggle}
-          checked={item.checked}
-          disableRipple
-          color={item.checked ? "success" : "info"}
-        />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          {!isTouchDevice && (
+            <Fade in={isHovering}>
+              <Box sx={{ display: "flex", gap: 0.5 }}>
+                <IconButton
+                  onClick={handleEdit}
+                  size="small"
+                  sx={{ color: "action.active" }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  onClick={handleDelete}
+                  size="small"
+                  sx={{ color: "error.main" }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            </Fade>
+          )}
+          <Checkbox
+            onClick={handleToggle}
+            checked={item.checked}
+            disableRipple
+            color={item.checked ? "success" : "info"}
+          />
+        </Box>
       }
     >
       <ListItemButton onClick={handleToggle}>

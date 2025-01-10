@@ -7,20 +7,22 @@ A streamlined system for managing packing list items, optimised for both desktop
 
 ### Desktop Interface
 - Checkbox always visible on the right for quick packing
-- Edit and delete buttons appear on hover
+- Edit and delete buttons appear on hover (Phase 3)
 - Click edit button to edit text (using EditableListItem)
 - Keep existing checked animation
+- Confirmation dialog for delete actions
 
 ### Mobile Interface
 - Checkbox always visible on the right
-- Swipe left to delete
+- Swipe left to delete (immediately, no confirmation needed)
 - Tap text to edit (using EditableListItem)
 - Keep existing checked animation
+- Swipe threshold with visual feedback
 
 ## Technical Implementation
 
 ### Component Structure
-Enhancing existing PackingListItem component while keeping EditableListItem for text editing:
+Using existing PackingListItem component with EditableListItem for text editing and new SwipeableContainer for mobile delete:
 ```typescript
 interface PackingListItemProps {
   item: Item;
@@ -33,20 +35,21 @@ interface PackingListItemProps {
 ### Interaction States
 1. Normal State
    - Shows checkbox 
-   - Desktop: Shows hover actions
-   - Mobile: Swipeable container
+   - Desktop: Shows hover actions (coming in Phase 3)
+   - Mobile: Swipeable container with red delete background
 
 2. Edit State 
    - Switch to EditableListItem
    - Save/cancel using existing functionality
    - Triggered by:
-     - Desktop: Click edit button
+     - Desktop: Click edit button (coming in Phase 3)
      - Mobile: Tap text
 
 3. Delete State (Mobile)
-   - Revealed by left swipe
-   - Snaps open/closed at threshold
-   - Delete confirmation
+   - Revealed by left swipe with red background
+   - White delete icon
+   - No confirmation needed
+   - Snaps back if not swiped far enough
 
 ## Implementation Progress
 
@@ -58,30 +61,27 @@ Completed:
   - Configurable thresholds
   - Desktop/mobile detection
 
-### Phase 2: PackingListItem Integration
-Files to modify:
-- `src/components/packing/PackingListItem.tsx`
-
-Key tasks:
-1. Add swipe container with useSwipeGesture
-2. Implement delete button reveal
-3. Handle delete confirmation
-4. Ensure swipe doesn't conflict with text tap
-5. Handle device-specific interactions
+### ✅ Phase 2: PackingListItem Integration
+Completed:
+- Created SwipeableContainer component
+- Integrated swipe-to-delete in PackingListItem
+- Added device-specific delete behaviour (direct on mobile, confirm on desktop)
+- Visual feedback with red background and white icon
+- Maintained existing animations
 
 ### Phase 3: Desktop Polish
 Files to modify:
 - `src/components/packing/PackingListItem.tsx`
 
 Key tasks:
-1. Polish hover states
-2. Button animations
-3. Test touch/mouse conflicts
+1. Add hover actions to desktop view
+2. Create edit/delete button animations
+3. Test all device interaction modes
 
 ## Development Notes
-- Keep existing strikethrough animations
-- Mobile-first development approach
-- Test touch/mouse conflicts
-- Keep delete confirmations
+- Keep existing strikethrough animations ✅
+- Mobile-first development approach ✅
+- Test touch/mouse conflicts ✅
+- Keep delete confirmations on desktop only ✅
 - Maintain accessibility 
 - Smooth transitions between normal/edit states
