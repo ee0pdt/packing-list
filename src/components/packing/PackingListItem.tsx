@@ -48,7 +48,7 @@ const PackingListItem = ({
     ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
   const isInsertTarget = state.focusedItemId === item.id;
-  const showInsertButtons = isHovering || isInsertTarget;
+  const showInsertButtons = (isHovering && !state.focusedItemId) || isInsertTarget;
   const showInsertForm = isInsertTarget && state.insertPosition !== null;
 
   useEffect(() => {
@@ -72,7 +72,8 @@ const PackingListItem = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isInsertTarget, dispatch, state.insertPosition]);
 
-  const handleToggle = () => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onToggle(item.id);
   };
 
@@ -133,12 +134,23 @@ const PackingListItem = ({
     );
   }
 
+  const handleItemClick = (event: React.MouseEvent) => {
+    if (isTouchDevice && !event.defaultPrevented) {
+      handleEdit();
+      event.preventDefault();
+    } else {
+      handleToggle(event);
+    }
+  };
+
   const itemContent = (
     <Box
       ref={itemRef}
       tabIndex={0}
       onFocus={() => dispatch({ type: "FOCUS_ITEM", id: item.id })}
-      onBlur={() => dispatch({ type: "BLUR_ITEM" })}
+      onBlur={() => !showInsertForm && dispatch({ type: "BLUR_ITEM" })}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
       sx={{ position: "relative" }}
     >
       {showInsertForm && state.insertPosition === "above" && (
@@ -156,8 +168,6 @@ const PackingListItem = ({
       />
       <ListItem
         disablePadding
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
         sx={{
           backgroundColor: (theme) =>
             item.checked
@@ -167,7 +177,7 @@ const PackingListItem = ({
         secondaryAction={
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             {!isTouchDevice && (
-              <Fade in={isHovering}>
+              <Fade in={isHovering && !state.focusedItemId}>
                 <Box sx={{ display: "flex", gap: 0.5 }}>
                   <IconButton
                     onClick={handleEdit}
@@ -187,10 +197,7 @@ const PackingListItem = ({
               </Fade>
             )}
             <Checkbox
-              onClick={(e) => {
-                e.preventDefault();
-                handleToggle();
-              }}
+              onClick={handleToggle}
               checked={item.checked}
               disableRipple
               color={item.checked ? "success" : "info"}
@@ -199,14 +206,7 @@ const PackingListItem = ({
         }
       >
         <ListItemButton
-          onClick={(event) => {
-            if (isTouchDevice && !event.defaultPrevented) {
-              handleEdit();
-              event.preventDefault();
-            } else {
-              handleToggle();
-            }
-          }}
+          onClick={handleItemClick}
         >
           <ListItemText
             primary={
