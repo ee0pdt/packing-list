@@ -30,6 +30,8 @@ const PackingListItem = ({
 }: PackingListItemProps) => {
   const { editMode } = useEditMode();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const isTouchDevice = typeof window !== "undefined" && 
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
   const handleToggle = () => {
     if (!editMode) {
@@ -38,7 +40,13 @@ const PackingListItem = ({
   };
 
   const handleDelete = () => {
-    setDeleteDialogOpen(true);
+    if (isTouchDevice) {
+      // Direct delete on mobile
+      onDelete(item.id);
+    } else {
+      // Show confirmation on desktop
+      setDeleteDialogOpen(true);
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -55,12 +63,14 @@ const PackingListItem = ({
           onDelete={handleDelete}
           autoFocus={isEditing}
         />
-        <DeleteItemDialog
-          open={deleteDialogOpen}
-          itemName={item.name}
-          onClose={() => setDeleteDialogOpen(false)}
-          onConfirm={handleConfirmDelete}
-        />
+        {!isTouchDevice && (
+          <DeleteItemDialog
+            open={deleteDialogOpen}
+            itemName={item.name}
+            onClose={() => setDeleteDialogOpen(false)}
+            onConfirm={handleConfirmDelete}
+          />
+        )}
       </>
     );
   }
@@ -109,12 +119,14 @@ const PackingListItem = ({
       <SwipeableContainer onDelete={handleDelete} disabled={editMode}>
         {itemContent}
       </SwipeableContainer>
-      <DeleteItemDialog
-        open={deleteDialogOpen}
-        itemName={item.name}
-        onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
-      />
+      {!isTouchDevice && (
+        <DeleteItemDialog
+          open={deleteDialogOpen}
+          itemName={item.name}
+          onClose={() => setDeleteDialogOpen(false)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
     </>
   );
 };
