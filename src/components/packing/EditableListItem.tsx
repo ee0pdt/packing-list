@@ -16,9 +16,7 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { Item } from "../../types/packing";
-import { useEditMode } from "../../contexts/EditModeContext";
 
-// Custom styled TextField to match listItem typography
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-root": {
     fontFamily: '"Patrick Hand", cursive',
@@ -55,7 +53,6 @@ const EditableListItem = ({
   initiallyEditing = false,
   autoFocus = false,
 }: EditableListItemProps) => {
-  const { editMode } = useEditMode();
   const [isEditing, setIsEditing] = useState(initiallyEditing || autoFocus);
   const [name, setName] = useState(item?.name || "");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,9 +67,7 @@ const EditableListItem = ({
   }, [isEditing, item, autoFocus]);
 
   const handleStartEdit = () => {
-    if (editMode) {
-      setIsEditing(true);
-    }
+    setIsEditing(true);
   };
 
   const handleSave = () => {
@@ -99,7 +94,7 @@ const EditableListItem = ({
     }
   };
 
-  if (!editMode && !item) {
+  if (!item && !isEditing) {
     return null;
   }
 
@@ -120,7 +115,7 @@ const EditableListItem = ({
               <CloseIcon />
             </IconButton>
           </Stack>
-        ) : editMode ? (
+        ) : (
           <Stack direction="row" spacing={2}>
             <IconButton onClick={handleStartEdit}>
               <EditIcon />
@@ -131,14 +126,13 @@ const EditableListItem = ({
               </IconButton>
             )}
           </Stack>
-        ) : null
+        )
       }
     >
       <ListItemButton
         onClick={handleStartEdit}
         disabled={isEditing}
         sx={{
-          cursor: editMode ? "pointer" : "default",
           "&.Mui-disabled": {
             opacity: 1,
           },

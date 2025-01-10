@@ -3,7 +3,6 @@ import { Box, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListItem } from "../../types/packing";
 import PackingList from "./PackingList";
-import { useEditMode } from "../../contexts/EditModeContext";
 
 interface PackingListData {
   name: string;
@@ -18,7 +17,6 @@ const PackingListContainer = () => {
   const [list, setList] = useState<PackingListData | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { setEditMode } = useEditMode();
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,7 +42,7 @@ const PackingListContainer = () => {
     const newItemId = generateId();
 
     const addNewItem = (items: ListItem[]): ListItem[] => {
-      return items.map(item => {
+      return items.map((item) => {
         if (item.id === listId && "items" in item) {
           return {
             ...item,
@@ -53,15 +51,15 @@ const PackingListContainer = () => {
               {
                 id: newItemId,
                 name: "New Item",
-                checked: false
-              }
-            ]
+                checked: false,
+              },
+            ],
           };
         }
         if ("items" in item) {
           return {
             ...item,
-            items: addNewItem(item.items)
+            items: addNewItem(item.items),
           };
         }
         return item;
@@ -69,16 +67,17 @@ const PackingListContainer = () => {
     };
 
     // Handle adding to root list
-    const updatedItems = listId === "root" 
-      ? [
-          ...list.items,
-          {
-            id: newItemId,
-            name: "New Item",
-            checked: false
-          }
-        ]
-      : addNewItem(list.items);
+    const updatedItems =
+      listId === "root"
+        ? [
+            ...list.items,
+            {
+              id: newItemId,
+              name: "New Item",
+              checked: false,
+            },
+          ]
+        : addNewItem(list.items);
 
     const updatedList = {
       ...list,
@@ -87,9 +86,7 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
-    
-    // Enable edit mode for the new item
-    setEditMode(true);
+
     setEditingItemId(newItemId);
   };
 
@@ -99,7 +96,7 @@ const PackingListContainer = () => {
     const newListId = generateId();
 
     const addNewSublist = (items: ListItem[]): ListItem[] => {
-      return items.map(item => {
+      return items.map((item) => {
         if (item.id === listId && "items" in item) {
           return {
             ...item,
@@ -108,15 +105,15 @@ const PackingListContainer = () => {
               {
                 id: newListId,
                 name: "New List",
-                items: []
-              }
-            ]
+                items: [],
+              },
+            ],
           };
         }
         if ("items" in item) {
           return {
             ...item,
-            items: addNewSublist(item.items)
+            items: addNewSublist(item.items),
           };
         }
         return item;
@@ -124,16 +121,17 @@ const PackingListContainer = () => {
     };
 
     // Handle adding to root list
-    const updatedItems = listId === "root" 
-      ? [
-          ...list.items,
-          {
-            id: newListId,
-            name: "New List",
-            items: []
-          }
-        ]
-      : addNewSublist(list.items);
+    const updatedItems =
+      listId === "root"
+        ? [
+            ...list.items,
+            {
+              id: newListId,
+              name: "New List",
+              items: [],
+            },
+          ]
+        : addNewSublist(list.items);
 
     const updatedList = {
       ...list,
@@ -142,9 +140,7 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
-    
-    // Enable edit mode for the new list
-    setEditMode(true);
+
     setEditingItemId(newListId);
   };
 
@@ -179,12 +175,12 @@ const PackingListContainer = () => {
     if (!list) return;
 
     const deleteItem = (items: ListItem[]): ListItem[] => {
-      const filteredItems = items.filter(item => item.id !== id);
-      return filteredItems.map(item => {
+      const filteredItems = items.filter((item) => item.id !== id);
+      return filteredItems.map((item) => {
         if ("items" in item) {
           return {
             ...item,
-            items: deleteItem(item.items)
+            items: deleteItem(item.items),
           };
         }
         return item;
@@ -204,12 +200,12 @@ const PackingListContainer = () => {
     if (!list) return;
 
     const deleteList = (items: ListItem[]): ListItem[] => {
-      const filteredItems = items.filter(item => item.id !== id);
-      return filteredItems.map(item => {
+      const filteredItems = items.filter((item) => item.id !== id);
+      return filteredItems.map((item) => {
         if ("items" in item) {
           return {
             ...item,
-            items: deleteList(item.items)
+            items: deleteList(item.items),
           };
         }
         return item;
@@ -229,17 +225,17 @@ const PackingListContainer = () => {
     if (!list) return;
 
     const editItem = (items: ListItem[]): ListItem[] => {
-      return items.map(item => {
+      return items.map((item) => {
         if (item.id === id) {
           return {
             ...item,
-            name: newName
+            name: newName,
           };
         }
         if ("items" in item) {
           return {
             ...item,
-            items: editItem(item.items)
+            items: editItem(item.items),
           };
         }
         return item;
@@ -253,24 +249,24 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
-    setEditingItemId(null);  // Clear editing state after save
+    setEditingItemId(null); // Clear editing state after save
   };
 
   const handleEditList = (id: string, newName: string) => {
     if (!list) return;
 
     const editList = (items: ListItem[]): ListItem[] => {
-      return items.map(item => {
+      return items.map((item) => {
         if (item.id === id && "items" in item) {
           return {
             ...item,
-            name: newName
+            name: newName,
           };
         }
         if ("items" in item) {
           return {
             ...item,
-            items: editList(item.items)
+            items: editList(item.items),
           };
         }
         return item;
@@ -281,7 +277,7 @@ const PackingListContainer = () => {
     if (id === "root") {
       const updatedList = {
         ...list,
-        name: newName
+        name: newName,
       };
       setList(updatedList);
       updateListInUrl(updatedList);
@@ -293,8 +289,8 @@ const PackingListContainer = () => {
       setList(updatedList);
       updateListInUrl(updatedList);
     }
-    
-    setEditingItemId(null);  // Clear editing state after save
+
+    setEditingItemId(null); // Clear editing state after save
   };
 
   const handleMarkAllPacked = (id: string, markAsPacked: boolean) => {

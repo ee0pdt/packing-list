@@ -17,7 +17,6 @@ import PackingListItem from "./PackingListItem";
 import EditableListHeader from "./EditableListHeader";
 import MarkPackedDialog from "../dialogs/MarkPackedDialog";
 import { PackingListMenu } from "./PackingListMenu";
-import { useEditMode } from "../../contexts/EditModeContext";
 
 interface PackingListProps {
   list: List;
@@ -53,7 +52,6 @@ const PackingList = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { editMode } = useEditMode();
   const theme = useTheme();
 
   const isPackedMemo = useMemo(() => {
@@ -203,7 +201,6 @@ const PackingList = ({
               <>
                 {expandCollapseButton}
                 <PackingListMenu
-                  isEditMode={editMode}
                   progress={progress}
                   onMarkAll={handleMarkAllClick}
                   onAdd={onAddItem ? handleAddItem : undefined}

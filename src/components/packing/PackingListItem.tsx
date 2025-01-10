@@ -11,7 +11,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Item } from "../../types/packing";
-import { useEditMode } from "../../contexts/EditModeContext";
 import DeleteItemDialog from "../dialogs/DeleteItemDialog";
 import { useState } from "react";
 import EditableListItem from "./EditableListItem";
@@ -33,7 +32,6 @@ const PackingListItem = ({
   onEdit,
   isEditing = false,
 }: PackingListItemProps) => {
-  const { editMode } = useEditMode();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isItemEditing, setIsItemEditing] = useState(isEditing);
   const [isHovering, setIsHovering] = useState(false);
@@ -41,9 +39,7 @@ const PackingListItem = ({
     ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
   const handleToggle = () => {
-    if (!editMode) {
-      onToggle(item.id);
-    }
+    onToggle(item.id);
   };
 
   const handleDelete = () => {
@@ -63,7 +59,7 @@ const PackingListItem = ({
     setIsItemEditing(true);
   };
 
-  if (editMode || isItemEditing) {
+  if (isItemEditing) {
     return (
       <>
         <EditableListItem
@@ -153,7 +149,7 @@ const PackingListItem = ({
 
   return (
     <>
-      <SwipeableContainer onDelete={handleDelete} disabled={editMode}>
+      <SwipeableContainer onDelete={handleDelete}>
         {itemContent}
       </SwipeableContainer>
       {!isTouchDevice && (

@@ -9,23 +9,23 @@ import {
 import { useState } from "react";
 
 interface PackingListMenuProps {
-  isEditMode: boolean;
   progress: number;
   onMarkAll: (event: React.MouseEvent) => void;
   onAdd?: () => void;
   onAddSublist?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  disabled?: boolean;
 }
 
 export const PackingListMenu = ({
-  isEditMode,
   progress,
   onMarkAll,
   onAdd,
   onAddSublist,
   onEdit,
   onDelete,
+  disabled,
 }: PackingListMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -86,11 +86,9 @@ export const PackingListMenu = ({
           </MenuItem>
         )}
 
-        {!isEditMode && (
-          <MenuItem onClick={(e) => handleMenuItemClick(() => onMarkAll(e), e)}>
-            {progress === 100 ? "Mark All Unpacked" : "Mark All Packed"}
-          </MenuItem>
-        )}
+        <MenuItem onClick={(e) => handleMenuItemClick(() => onMarkAll(e), e)}>
+          {progress === 100 ? "Mark All Unpacked" : "Mark All Packed"}
+        </MenuItem>
 
         {onDelete && (
           <MenuItem onClick={(e) => handleMenuItemClick(onDelete, e)}>
