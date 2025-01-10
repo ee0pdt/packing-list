@@ -118,7 +118,10 @@ const PackingListItem = ({
             </Fade>
           )}
           <Checkbox
-            onClick={handleToggle}
+            onClick={(e) => {
+              e.preventDefault();
+              handleToggle();
+            }}
             checked={item.checked}
             disableRipple
             color={item.checked ? "success" : "info"}
@@ -126,7 +129,16 @@ const PackingListItem = ({
         </Box>
       }
     >
-      <ListItemButton onClick={handleToggle}>
+      <ListItemButton
+        onClick={(event) => {
+          if (isTouchDevice && !event.defaultPrevented) {
+            handleEdit();
+            event.preventDefault();
+          } else {
+            handleToggle();
+          }
+        }}
+      >
         <ListItemText
           primary={
             <Typography
