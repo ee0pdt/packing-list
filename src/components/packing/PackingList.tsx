@@ -28,6 +28,7 @@ interface PackingListProps {
   onEditItem: (id: string, newName: string) => void;
   onMarkAllPacked?: (id: string, markAsPacked: boolean) => void;
   onAddItem?: (listId: string) => void;
+  onAddSublist?: (listId: string) => void;  // New prop
   onDeleteList?: (id: string) => void;
   editingItemId?: string | null;
   level?: number;
@@ -44,6 +45,7 @@ const PackingList = ({
   onEditItem,
   onMarkAllPacked,
   onAddItem,
+  onAddSublist,
   onDeleteList,
   editingItemId,
   level = 0,
@@ -123,6 +125,12 @@ const PackingList = ({
     }
   };
 
+  const handleAddSublist = () => {
+    if (onAddSublist) {
+      onAddSublist(list.id);
+    }
+  };
+
   const handleDeleteList = () => {
     if (onDeleteList) {
       onDeleteList(list.id);
@@ -176,6 +184,7 @@ const PackingList = ({
               progress={progress}
               onMarkAll={handleMarkAllClick}
               onAdd={onAddItem ? handleAddItem : undefined}
+              onAddSublist={onAddSublist ? handleAddSublist : undefined}
               onDelete={list.id !== "root" ? handleDeleteList : undefined}
               disabled={!onMarkAllPacked}
             />
@@ -227,6 +236,7 @@ const PackingList = ({
                   onEditItem={onEditItem}
                   onMarkAllPacked={onMarkAllPacked}
                   onAddItem={onAddItem}
+                  onAddSublist={onAddSublist}
                   onDeleteList={onDeleteList}
                   editingItemId={editingItemId}
                   level={level + 1}

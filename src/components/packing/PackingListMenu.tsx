@@ -6,7 +6,8 @@ interface PackingListMenuProps {
   isEditMode?: boolean;
   progress: number;
   onMarkAll: (e: React.MouseEvent) => void;
-  onAdd?: () => void;  // New prop for adding items
+  onAdd?: () => void;
+  onAddSublist?: () => void;
   onDelete?: () => void;
   disabled?: boolean;
 }
@@ -16,6 +17,7 @@ export const PackingListMenu: React.FC<PackingListMenuProps> = ({
   progress,
   onMarkAll,
   onAdd,
+  onAddSublist,
   onDelete,
   disabled = false,
 }) => {
@@ -40,6 +42,14 @@ export const PackingListMenu: React.FC<PackingListMenuProps> = ({
     if (onAdd) {
       event.stopPropagation();
       onAdd();
+      handleClose();
+    }
+  };
+
+  const handleAddSublist = (event: React.MouseEvent) => {
+    if (onAddSublist) {
+      event.stopPropagation();
+      onAddSublist();
       handleClose();
     }
   };
@@ -75,6 +85,11 @@ export const PackingListMenu: React.FC<PackingListMenuProps> = ({
         {onAdd && (
           <MenuItem onClick={handleAdd}>
             Add Item
+          </MenuItem>
+        )}
+        {onAddSublist && (
+          <MenuItem onClick={handleAddSublist}>
+            Add Sublist
           </MenuItem>
         )}
         <MenuItem onClick={handleMarkAll} disabled={isEditMode}>

@@ -93,6 +93,61 @@ const PackingListContainer = () => {
     setEditingItemId(newItemId);
   };
 
+  const handleAddSublist = (listId: string) => {
+    if (!list) return;
+
+    const newListId = generateId();
+
+    const addNewSublist = (items: ListItem[]): ListItem[] => {
+      return items.map(item => {
+        if (item.id === listId && "items" in item) {
+          return {
+            ...item,
+            items: [
+              ...item.items,
+              {
+                id: newListId,
+                name: "New List",
+                items: []
+              }
+            ]
+          };
+        }
+        if ("items" in item) {
+          return {
+            ...item,
+            items: addNewSublist(item.items)
+          };
+        }
+        return item;
+      });
+    };
+
+    // Handle adding to root list
+    const updatedItems = listId === "root" 
+      ? [
+          ...list.items,
+          {
+            id: newListId,
+            name: "New List",
+            items: []
+          }
+        ]
+      : addNewSublist(list.items);
+
+    const updatedList = {
+      ...list,
+      items: updatedItems,
+    };
+
+    setList(updatedList);
+    updateListInUrl(updatedList);
+    
+    // Enable edit mode for the new list
+    setEditMode(true);
+    setEditingItemId(newListId);
+  };
+
   const handleToggle = (id: string) => {
     if (!list) return;
 
@@ -263,6 +318,7 @@ const PackingListContainer = () => {
         onEditItem={handleEditItem}
         onMarkAllPacked={handleMarkAllPacked}
         onAddItem={handleAddItem}
+        onAddSublist={handleAddSublist}
         onDeleteList={handleDeleteList}
         editingItemId={editingItemId}
       />
