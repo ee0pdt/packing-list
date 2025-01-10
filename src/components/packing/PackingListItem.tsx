@@ -10,6 +10,7 @@ import { useEditMode } from "../../contexts/EditModeContext";
 import DeleteItemDialog from "../dialogs/DeleteItemDialog";
 import { useState } from "react";
 import EditableListItem from "./EditableListItem";
+import { strikethrough, unstrike } from "../../styles/animations";
 
 interface PackingListItemProps {
   item: Item;
@@ -87,9 +88,11 @@ const PackingListItem = ({
             <Typography
               variant="listItem"
               sx={{
-                textDecoration: item.checked ? "line-through" : "none",
-                textDecorationThickness: "0.2rem",
-                textDecorationColor: "rgba(0,20,0,0.5)",
+                textDecoration: "line-through",
+                textDecorationColor: "transparent",
+                animation: item.checked
+                  ? `${strikethrough} 0.3s ease-in-out forwards`
+                  : `${unstrike} 0.3s ease-in-out forwards`,
               }}
             >
               {item.name}
