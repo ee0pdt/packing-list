@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListItem } from "../../types/packing";
 import PackingList from "./PackingList";
+import { useInsert } from "../../contexts/InsertContext";
 
 interface PackingListData {
   name: string;
@@ -18,6 +19,7 @@ const PackingListContainer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const { state: insertState } = useInsert();
 
   useEffect(() => {
     const encodedData = location.pathname.slice(6);
@@ -34,6 +36,39 @@ const PackingListContainer = () => {
   const updateListInUrl = (newList: PackingListData) => {
     const encodedData = btoa(JSON.stringify(newList));
     navigate(`/list/${encodedData}`);
+  };
+
+  const handleInsertItem = (id: string, position: "above" | "below", name: string) => {
+    if (!list) return;
+
+    const newItemId = generateId();
+    const newItem = { id: newItemId, name, checked: false };
+
+    const insertIntoItems = (items: ListItem[]): ListItem[] => {
+      const index = items.findIndex(item => item.id === id);
+      if (index === -1) {
+        return items.map(item => {
+          if ("items" in item) {
+            return { ...item, items: insertIntoItems(item.items) };
+          }
+          return item;
+        });
+      }
+
+      const insertIndex = position === "above" ? index : index + 1;
+      return [
+        ...items.slice(0, insertIndex),
+        newItem,
+        ...items.slice(insertIndex)
+      ];
+    };
+
+    const updatedItems = insertIntoItems(list.items);
+    const updatedList = { ...list, items: updatedItems };
+
+    setList(updatedList);
+    updateListInUrl(updatedList);
+    setEditingItemId(newItemId);
   };
 
   const handleAddItem = (listId: string) => {
@@ -66,7 +101,6 @@ const PackingListContainer = () => {
       });
     };
 
-    // Handle adding to root list
     const updatedItems =
       listId === "root"
         ? [
@@ -86,7 +120,6 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
-
     setEditingItemId(newItemId);
   };
 
@@ -120,7 +153,6 @@ const PackingListContainer = () => {
       });
     };
 
-    // Handle adding to root list
     const updatedItems =
       listId === "root"
         ? [
@@ -140,7 +172,6 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
-
     setEditingItemId(newListId);
   };
 
@@ -249,7 +280,7 @@ const PackingListContainer = () => {
 
     setList(updatedList);
     updateListInUrl(updatedList);
-    setEditingItemId(null); // Clear editing state after save
+    setEditingItemId(null);
   };
 
   const handleEditList = (id: string, newName: string) => {
@@ -273,7 +304,6 @@ const PackingListContainer = () => {
       });
     };
 
-    // Special handling for root list
     if (id === "root") {
       const updatedList = {
         ...list,
@@ -290,7 +320,7 @@ const PackingListContainer = () => {
       updateListInUrl(updatedList);
     }
 
-    setEditingItemId(null); // Clear editing state after save
+    setEditingItemId(null);
   };
 
   const handleMarkAllPacked = (id: string, markAsPacked: boolean) => {
@@ -358,6 +388,7 @@ const PackingListContainer = () => {
         onAddItem={handleAddItem}
         onAddSublist={handleAddSublist}
         onDeleteList={handleDeleteList}
+        onInsertItem={handleInsertItem}
         editingItemId={editingItemId}
       />
     </Box>

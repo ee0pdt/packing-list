@@ -3,104 +3,73 @@
 ## Overview
 A streamlined process for adding items to a packing list that provides intuitive interactions for both mouse and keyboard users, with a consistent visual language.
 
-## User Experience
+## Implementation Status
 
-### Mouse Flow
-1. Hover over any list item
-2. Insert buttons appear above and below the item
-3. Click desired insert point (above/below)
-4. Type item name and:
-   - Press Enter to save
-   - Press Escape to cancel
-   - Click away to cancel
+### Completed
+1. State Management
+   - Created `useInsertReducer` hook for managing insert state
+   - Added `InsertContext` for sharing state
+   - Basic actions: FOCUS_ITEM, BLUR_ITEM, START_INSERT, CANCEL_INSERT
 
-### Keyboard Flow
-1. Navigate items using Tab key
-2. When an item is focused:
-   - Insert buttons appear above and below the item
-   - Alt+Up to insert above current item
-   - Alt+Down to insert below current item
-3. When inserting:
-   - Input field appears at insertion point
-   - Press Enter to save
-   - Press Escape to cancel
+2. Core Components
+   - Created `InsertButton` component with position and visibility props
+   - Added insert functionality to `PackingListContainer`
+   - Updated `PackingList` to pass down insert handlers
 
-### Mobile Flow
-1. Long press on an item to reveal insert options
-2. Tap insert point (above/below)
-3. Virtual keyboard appears with input field
-4. Tap done/return to save
-5. Tap outside to cancel
+### Remaining Tasks
+1. Editing Integration
+   - Add `EditableListItem` when insertion is active
+   - Wire up ESC/Enter key handlers
+   - Handle focus management during edit
 
-## Technical Implementation
+2. Keyboard Support
+   - Add Alt+Up/Down keyboard shortcuts
+   - Focus handling between items
+   - ARIA labels for accessibility
+
+3. Mobile Support
+   - Long press gesture
+   - Touch-friendly insert buttons
+   - Virtual keyboard handling
+
+4. Animation & Polish
+   - Smooth transitions for insert buttons
+   - Visual feedback for hover/focus states
+   - Progress indication during insertion
+
+## Technical Details
 
 ### State Management
 ```typescript
 interface InsertState {
   focusedItemId: string | null;
   insertPosition: 'above' | 'below' | null;
-  isInserting: boolean;
-  inputValue: string;
 }
 
 type InsertAction =
   | { type: 'FOCUS_ITEM'; id: string }
   | { type: 'BLUR_ITEM' }
   | { type: 'START_INSERT'; position: 'above' | 'below' }
-  | { type: 'CANCEL_INSERT' }
-  | { type: 'SAVE_ITEM'; value: string }
-  | { type: 'UPDATE_VALUE'; value: string };
+  | { type: 'CANCEL_INSERT' };
 ```
 
 ### Component Structure
 ```typescript
-const ListItemWithInsert: React.FC<{
-  id: string;
-  name: string;
-  onInsertAbove: (name: string) => void;
-  onInsertBelow: (name: string) => void;
-}>;
-
 const InsertButton: React.FC<{
   position: 'top' | 'bottom';
+  visible: boolean;
   onClick: () => void;
-  label: string;
+}>;
+
+const PackingListItem: React.FC<{
+  // ... existing props
+  onInsert: (id: string, position: 'above' | 'below', name: string) => void;
 }>;
 ```
 
-### Key Behaviours
-1. Focus Management
-   - Clear visual focus indicators
-   - Keyboard navigation between items
-   - Auto-focus input when inserting
-
-2. Keyboard Support
-   - Tab: Navigate between items
-   - Alt+Up/Down: Quick insert shortcuts
-   - Enter: Save new item
-   - Escape: Cancel insertion
-
-3. Touch Considerations
-   - Large enough touch targets
-   - Clear visual feedback
-   - Handle virtual keyboard properly
-
-## Accessibility
-- ARIA labels for all interactive elements
-- Keyboard navigation support
-- Screen reader announcements for:
-  * Focus changes
-  * Insert options
-  * Success/failure of insertions
-- High contrast visual indicators
-
-## Animation
-- Smooth reveal/hide of insert buttons
-- Subtle transitions for input field
-- Visual feedback for successful insertion
-
-## Future Enhancements
-- Quick add mode for multiple items
-- Template suggestions
-- Recent items list
-- Paste multiple lines support
+## Next Steps
+1. Implement EditableListItem integration
+2. Add keyboard shortcuts
+3. Enhance mobile support
+4. Polish animations and transitions
+5. Add comprehensive testing

@@ -28,6 +28,7 @@ interface PackingListProps {
   onAddItem?: (listId: string) => void;
   onAddSublist?: (listId: string) => void;
   onDeleteList?: (id: string) => void;
+  onInsertItem?: (id: string, position: "above" | "below", name: string) => void;
   editingItemId?: string | null;
   level?: number;
 }
@@ -46,6 +47,7 @@ const PackingList = ({
   onAddItem,
   onAddSublist,
   onDeleteList,
+  onInsertItem,
   editingItemId,
   level = 0,
 }: PackingListProps) => {
@@ -161,6 +163,12 @@ const PackingList = ({
     }
   };
 
+  const handleInsertItem = (id: string, position: "above" | "below", name: string) => {
+    if (onInsertItem) {
+      onInsertItem(id, position, name);
+    }
+  };
+
   const expandCollapseButton = (
     <IconButton onClick={handleExpand} size="small">
       {isExpanded ? <ExpandLess /> : <ExpandMore />}
@@ -239,6 +247,7 @@ const PackingList = ({
                   onToggle={handleItemToggle}
                   onDelete={onDeleteItem}
                   onEdit={onEditItem}
+                  onInsert={handleInsertItem}
                   isEditing={item.id === editingItemId}
                 />
               ) : (
@@ -253,6 +262,7 @@ const PackingList = ({
                   onAddItem={onAddItem}
                   onAddSublist={onAddSublist}
                   onDeleteList={onDeleteList}
+                  onInsertItem={onInsertItem}
                   editingItemId={editingItemId}
                   level={level + 1}
                 />
