@@ -1,85 +1,106 @@
 # Quick Add Flow
 
 ## Overview
-A streamlined process for adding multiple items to a packing list quickly and efficiently.
+A streamlined process for adding items to a packing list that provides intuitive interactions for both mouse and keyboard users, with a consistent visual language.
 
 ## User Experience
 
-### Desktop Flow
-1. Click "Add Item" button
-2. Type item name and press Enter
-3. Previous item is saved and new input field appears immediately
-4. Continue adding items until either:
-   - Press Enter on empty field (ends flow)
-   - Press Escape (ends flow)
-   - Click away from input (ends flow)
+### Mouse Flow
+1. Hover over any list item
+2. Insert buttons appear above and below the item
+3. Click desired insert point (above/below)
+4. Type item name and:
+   - Press Enter to save
+   - Press Escape to cancel
+   - Click away to cancel
+
+### Keyboard Flow
+1. Navigate items using Tab key
+2. When an item is focused:
+   - Insert buttons appear above and below the item
+   - Alt+Up to insert above current item
+   - Alt+Down to insert below current item
+3. When inserting:
+   - Input field appears at insertion point
+   - Press Enter to save
+   - Press Escape to cancel
 
 ### Mobile Flow
-1. Tap "Add Item" button
-2. Type item name and tap save/done on keyboard
-3. Previous item is saved and new input field appears with keyboard still active
-4. Continue adding items until either:
-   - Tap save on empty field (ends flow)
-   - Tap away from input (ends flow)
+1. Long press on an item to reveal insert options
+2. Tap insert point (above/below)
+3. Virtual keyboard appears with input field
+4. Tap done/return to save
+5. Tap outside to cancel
 
 ## Technical Implementation
 
 ### State Management
 ```typescript
-interface QuickAddState {
-  isAdding: boolean;
-  currentValue: string;
+interface InsertState {
   focusedItemId: string | null;
+  insertPosition: 'above' | 'below' | null;
+  isInserting: boolean;
+  inputValue: string;
 }
 
-type QuickAddAction =
-  | { type: 'START_ADDING' }
+type InsertAction =
+  | { type: 'FOCUS_ITEM'; id: string }
+  | { type: 'BLUR_ITEM' }
+  | { type: 'START_INSERT'; position: 'above' | 'below' }
+  | { type: 'CANCEL_INSERT' }
   | { type: 'SAVE_ITEM'; value: string }
-  | { type: 'END_ADDING' }
   | { type: 'UPDATE_VALUE'; value: string };
 ```
 
 ### Component Structure
 ```typescript
-const QuickAdd: React.FC<{
-  onSave: (name: string) => void;
-  onComplete: () => void;
+const ListItemWithInsert: React.FC<{
+  id: string;
+  name: string;
+  onInsertAbove: (name: string) => void;
+  onInsertBelow: (name: string) => void;
 }>;
 
-const QuickAddTrigger: React.FC<{
-  onStart: () => void;
+const InsertButton: React.FC<{
+  position: 'top' | 'bottom';
+  onClick: () => void;
+  label: string;
 }>;
 ```
 
 ### Key Behaviours
-1. Input Focus Management
-   - Auto-focus new input field
-   - Maintain focus through multiple adds
-   - Clear focus when flow ends
+1. Focus Management
+   - Clear visual focus indicators
+   - Keyboard navigation between items
+   - Auto-focus input when inserting
 
-2. Keyboard Navigation
-   - Enter: Save current and start new
-   - Escape: Cancel current and end flow
-   - Empty Enter: End flow
+2. Keyboard Support
+   - Tab: Navigate between items
+   - Alt+Up/Down: Quick insert shortcuts
+   - Enter: Save new item
+   - Escape: Cancel insertion
 
-3. Mobile Considerations
-   - Maintain keyboard visibility
-   - Handle soft keyboard events
-   - Touch-friendly save/cancel actions
+3. Touch Considerations
+   - Large enough touch targets
+   - Clear visual feedback
+   - Handle virtual keyboard properly
 
 ## Accessibility
-- Clear ARIA labels
+- ARIA labels for all interactive elements
 - Keyboard navigation support
-- Visual focus indicators
-- Screen reader announcements for saved items
+- Screen reader announcements for:
+  * Focus changes
+  * Insert options
+  * Success/failure of insertions
+- High contrast visual indicators
 
 ## Animation
-Subtle animations for:
-- New input field appearance
-- Saved item confirmation
-- Flow completion
+- Smooth reveal/hide of insert buttons
+- Subtle transitions for input field
+- Visual feedback for successful insertion
 
 ## Future Enhancements
-- Batch undo for quick adds
-- Template selection for common items
+- Quick add mode for multiple items
+- Template suggestions
+- Recent items list
 - Paste multiple lines support
