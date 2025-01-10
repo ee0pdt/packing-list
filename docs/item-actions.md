@@ -1,105 +1,87 @@
 # Item Actions System
 
 ## Overview
-A streamlined system for managing packing list items, optimised for both desktop and mobile interactions. Focuses on the key actions of editing text and deleting items. Builds upon the existing EditableListItem component.
+A streamlined system for managing packing list items, optimised for both desktop and mobile interactions. Focuses on adding intuitive touch gestures while maintaining current checkbox animations.
 
 ## User Experience
 
 ### Desktop Interface
-- Checkbox always visible for quick packing
-- On hover: reveal edit and delete icons
-- Icons fade in/out smoothly
-- Clear visual hover states 
+- Checkbox always visible on the right for quick packing
+- Edit button appears on hover
+- Delete button appears on hover
+- Keep existing checked animation
 
 ### Mobile Interface
-- Checkbox always visible on left
-- Tap item text to edit
-- Swipe left to reveal delete (iOS messages style)
-- Swipe bounces back if not committed
+- Checkbox always visible on the right
+- Swipe left to delete
+- Long press to edit name
+- Keep existing checked animation
 
 ## Technical Implementation
 
 ### Component Structure
-Enhancing the existing EditableListItem component with:
+Enhancing existing PackingListItem component:
 ```typescript
-// New hook for swipe gestures
-interface SwipeState {
-  offset: number
-  isSwiping: boolean
-  velocity: number
-}
-
-interface SwipeConfig {
-  threshold: number      // px to trigger delete
-  bounceThreshold: number // px to snap back
+interface PackingListItemProps {
+  item: Item;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+  onEdit: (id: string, newName: string) => void;
 }
 ```
 
 ### Interaction States
 1. Normal State
-   - Shows checkbox and text
-   - Desktop: Hover reveals actions
+   - Shows checkbox 
+   - Desktop: Shows hover actions
    - Mobile: Swipeable container
 
-2. Delete State (Mobile)
+2. Edit State (Triggered by long press)
+   - Inline text field
+   - Save on enter/blur
+   - Cancel on escape
+
+3. Delete State (Mobile)
    - Revealed by left swipe
    - Snaps open/closed at threshold
-   - Bounces back if not committed
-
-## Mobile Gesture Implementation
-Key behaviours:
-- Track touch position
-- Calculate swipe velocity
-- Snap open/closed based on threshold
-- Smooth spring animations
-- Cancel on scroll detection
-
-## Animation
-Using React Spring for:
-- Swipe tracking
-- Delete button reveal
-- Action button fade in/out
-
-## Accessibility
-- Maintain existing keyboard support
-- Clear focus indicators
-- ARIA labels for all buttons
-- Touch targets minimum 44x44px
-
-## Future Considerations
-- Add undo for deletions
-- Consider drag-to-reorder later
-- Potential right-swipe actions
-- Batch edit/delete options
+   - Delete confirmation
 
 ## Implementation Plan
 
-### Phase 1: Mobile Swipe-to-Delete
+### Phase 1: Core Swipe Setup
 Files to modify:
-- `src/hooks/useSwipeGesture.ts` (new)
-- `src/components/packing/EditableListItem.tsx` (modify)
+- Keep `src/hooks/useSwipeGesture.ts` 
+- Update `src/components/packing/PackingListItem.tsx`
 
 Key tasks:
-1. Create swipe gesture hook
-2. Add swipe container wrapper
-3. Implement delete threshold logic
-4. Create delete button reveal animation
-5. Handle commit/cancel actions
-6. Ensure no conflict with scrolling
+1. Add swipe container to PackingListItem
+2. Implement delete button reveal
+3. Handle delete confirmation
+4. Maintain existing checkbox functionality
 
-### Phase 2: Desktop UX Polish
+### Phase 2: Desktop Polish
 Files to modify:
-- `src/components/packing/EditableListItem.tsx`
+- `src/components/packing/PackingListItem.tsx`
 
 Key tasks:
-1. Enhance hover state transitions
-2. Improve icon button animations
-3. Better focus states
-4. Ensure no conflicts between touch/mouse events
+1. Add hover state for desktop
+2. Enhance button animations
+3. Ensure no conflicts between touch/mouse events
+
+### Phase 3: Edit Mode
+Files to modify:
+- `src/components/packing/PackingListItem.tsx`
+- Add new `src/hooks/useLongPress.ts`
+
+Key tasks:
+1. Implement long press detection
+2. Add inline editing UI
+3. Handle save/cancel actions
+4. Keyboard navigation support
 
 ## Development Notes
-- Each phase should be completed and tested before moving to next
-- Components should be developed mobile-first
-- Ensure touch/mouse event handling doesn't conflict
-- Test across different devices/browsers
-- Document any changes to edit mode behaviour
+- Keep existing strikethrough animations
+- Mobile-first development approach
+- Test touch/mouse conflicts
+- Keep delete confirmations
+- Maintain accessibility
