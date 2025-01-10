@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useSwipeGesture } from "../../hooks/useSwipeGesture";
 import { ReactNode, useEffect } from "react";
-import { Trash2 } from "lucide-react";
 
 interface SwipeableContainerProps {
   children: ReactNode;
@@ -50,31 +50,35 @@ const SwipeableContainer = ({
       onTouchMove={disabled ? undefined : handleTouchMove}
       onTouchEnd={disabled ? undefined : handleTouchEnd}
     >
-      <Box
-        sx={{
-          position: "relative",
-          zIndex: 1,
-          transform: `translateX(${offset}px)`,
-          transition: isSwiping ? undefined : "transform 0.2s ease-out",
-        }}
-      >
-        {children}
-      </Box>
+      {/* Delete background */}
       <Box
         sx={{
           position: "absolute",
           right: 0,
           top: 0,
           bottom: 0,
+          left: 0,
+          bgcolor: "error.main",
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
           pr: 2,
-          color: "error.main",
-          opacity: Math.min(1, Math.abs(offset) / 40),
         }}
       >
-        <Trash2 size={24} />
+        <DeleteIcon sx={{ color: "common.white" }} />
+      </Box>
+
+      {/* Content */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          transform: `translateX(${offset}px)`,
+          transition: isSwiping ? undefined : "transform 0.2s ease-out",
+          bgcolor: "background.paper",
+        }}
+      >
+        {children}
       </Box>
     </Box>
   );

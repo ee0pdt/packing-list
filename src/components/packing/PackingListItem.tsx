@@ -11,6 +11,7 @@ import DeleteItemDialog from "../dialogs/DeleteItemDialog";
 import { useState } from "react";
 import EditableListItem from "./EditableListItem";
 import { strikethrough, unstrike } from "../../styles/animations";
+import SwipeableContainer from "../common/SwipeableContainer";
 
 interface PackingListItemProps {
   item: Item;
@@ -64,7 +65,7 @@ const PackingListItem = ({
     );
   }
 
-  return (
+  const itemContent = (
     <ListItem
       disablePadding
       sx={{
@@ -101,6 +102,20 @@ const PackingListItem = ({
         />
       </ListItemButton>
     </ListItem>
+  );
+
+  return (
+    <>
+      <SwipeableContainer onDelete={handleDelete} disabled={editMode}>
+        {itemContent}
+      </SwipeableContainer>
+      <DeleteItemDialog
+        open={deleteDialogOpen}
+        itemName={item.name}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 };
 
