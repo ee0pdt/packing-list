@@ -1,26 +1,26 @@
 # Item Actions System
 
 ## Overview
-A streamlined system for managing packing list items, optimised for both desktop and mobile interactions. Focuses on adding intuitive touch gestures while maintaining current checkbox animations.
+A streamlined system for managing packing list items, optimised for both desktop and mobile interactions. Uses swipe gestures for delete on mobile while leveraging existing EditableListItem for text editing.
 
 ## User Experience
 
 ### Desktop Interface
 - Checkbox always visible on the right for quick packing
-- Edit button appears on hover
-- Delete button appears on hover
+- Edit and delete buttons appear on hover
+- Click edit button to edit text (using EditableListItem)
 - Keep existing checked animation
 
 ### Mobile Interface
 - Checkbox always visible on the right
 - Swipe left to delete
-- Long press to edit name
+- Tap text to edit (using EditableListItem)
 - Keep existing checked animation
 
 ## Technical Implementation
 
 ### Component Structure
-Enhancing existing PackingListItem component:
+Enhancing existing PackingListItem component while keeping EditableListItem for text editing:
 ```typescript
 interface PackingListItemProps {
   item: Item;
@@ -36,52 +36,52 @@ interface PackingListItemProps {
    - Desktop: Shows hover actions
    - Mobile: Swipeable container
 
-2. Edit State (Triggered by long press)
-   - Inline text field
-   - Save on enter/blur
-   - Cancel on escape
+2. Edit State 
+   - Switch to EditableListItem
+   - Save/cancel using existing functionality
+   - Triggered by:
+     - Desktop: Click edit button
+     - Mobile: Tap text
 
 3. Delete State (Mobile)
    - Revealed by left swipe
    - Snaps open/closed at threshold
    - Delete confirmation
 
-## Implementation Plan
+## Implementation Progress
 
-### Phase 1: Core Swipe Setup
+### ✅ Phase 1: Core Swipe Setup
+Completed:
+- Created `src/hooks/useSwipeGesture.ts` with:
+  - Touch position tracking
+  - Swipe velocity calculation
+  - Configurable thresholds
+  - Desktop/mobile detection
+
+### Phase 2: PackingListItem Integration
 Files to modify:
-- Keep `src/hooks/useSwipeGesture.ts` 
-- Update `src/components/packing/PackingListItem.tsx`
+- `src/components/packing/PackingListItem.tsx`
 
 Key tasks:
-1. Add swipe container to PackingListItem
+1. Add swipe container with useSwipeGesture
 2. Implement delete button reveal
 3. Handle delete confirmation
-4. Maintain existing checkbox functionality
+4. Ensure swipe doesn't conflict with text tap
+5. Handle device-specific interactions
 
-### Phase 2: Desktop Polish
+### Phase 3: Desktop Polish
 Files to modify:
 - `src/components/packing/PackingListItem.tsx`
 
 Key tasks:
-1. Add hover state for desktop
-2. Enhance button animations
-3. Ensure no conflicts between touch/mouse events
-
-### Phase 3: Edit Mode
-Files to modify:
-- `src/components/packing/PackingListItem.tsx`
-- Add new `src/hooks/useLongPress.ts`
-
-Key tasks:
-1. Implement long press detection
-2. Add inline editing UI
-3. Handle save/cancel actions
-4. Keyboard navigation support
+1. Polish hover states
+2. Button animations
+3. Test touch/mouse conflicts
 
 ## Development Notes
 - Keep existing strikethrough animations
 - Mobile-first development approach
 - Test touch/mouse conflicts
 - Keep delete confirmations
-- Maintain accessibility
+- Maintain accessibility 
+- Smooth transitions between normal/edit states
