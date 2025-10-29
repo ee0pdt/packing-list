@@ -5,30 +5,19 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "remix vite:dev",
-    "build": "remix vite:build",
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
-    "preview": "remix-serve build/server/index.js",
+    "preview": "vite preview",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^6.3.0",
-    "@mui/material": "^6.3.0",
-    "@remix-run/node": "nightly",
-    "@remix-run/react": "nightly",
-    "@remix-run/serve": "nightly",
-    "isbot": "^5.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@remix-run/dom": "^0.0.0-experimental-remix-jam.6",
+    "@remix-run/events": "^0.0.0-experimental-remix-jam.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
-    "@remix-run/dev": "nightly",
     "@types/node": "^22.10.3",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
