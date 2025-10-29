@@ -1,4 +1,4 @@
-import { useState } from "@remix-run/dom";
+import type { Remix } from "@remix-run/dom";
 
 interface ListItem {
   id: string;
@@ -6,13 +6,13 @@ interface ListItem {
   checked: boolean;
 }
 
-export function PackingListApp() {
-  const [items, setItems] = useState<ListItem[]>([
+export function PackingListApp(this: Remix.Handle) {
+  let items: ListItem[] = [
     { id: "1", name: "Passport", checked: false },
     { id: "2", name: "Phone charger", checked: false },
     { id: "3", name: "Toothbrush", checked: false },
-  ]);
-  const [newItemName, setNewItemName] = useState("");
+  ];
+  let newItemName = "";
 
   const addItem = () => {
     if (newItemName.trim()) {
@@ -21,27 +21,29 @@ export function PackingListApp() {
         name: newItemName.trim(),
         checked: false,
       };
-      setItems([...items, newItem]);
-      setNewItemName("");
+      items = [...items, newItem];
+      newItemName = "";
+      this.update();
     }
   };
 
   const toggleItem = (id: string) => {
-    setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked } : item
-      )
+    items = items.map((item) =>
+      item.id === id ? { ...item, checked: !item.checked } : item
     );
+    this.update();
   };
 
   const deleteItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
+    items = items.filter((item) => item.id !== id);
+    this.update();
   };
 
-  const packedCount = items.filter((item) => item.checked).length;
-  const totalCount = items.length;
+  return () => {
+    const packedCount = items.filter((item) => item.checked).length;
+    const totalCount = items.length;
 
-  return (
+    return (
     <div
       css={{
         backgroundColor: "white",
@@ -62,7 +64,10 @@ export function PackingListApp() {
         <input
           type="text"
           value={newItemName}
-          onInput={(e) => setNewItemName((e.target as HTMLInputElement).value)}
+          onInput={(e) => {
+            newItemName = (e.target as HTMLInputElement).value;
+            this.update();
+          }}
           onKeyPress={(e) => e.key === "Enter" && addItem()}
           placeholder="Add new item..."
           css={{
@@ -160,5 +165,6 @@ export function PackingListApp() {
         </p>
       )}
     </div>
-  );
+    );
+  };
 }
