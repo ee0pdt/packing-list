@@ -8,12 +8,39 @@ interface ListItem {
   checked: boolean;
 }
 
-export function PackingListApp(this: Remix.Handle) {
-  let items: ListItem[] = [
+const STORAGE_KEY = "packapp-items";
+
+// Load items from localStorage
+function loadItems(): ListItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error("Failed to load items from localStorage:", error);
+  }
+  // Default items if nothing in storage
+  return [
     { id: "1", name: "Passport", checked: false },
     { id: "2", name: "Phone charger", checked: false },
     { id: "3", name: "Toothbrush", checked: false },
   ];
+}
+
+// Save items to localStorage
+function saveItems(items: ListItem[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error("Failed to save items to localStorage:", error);
+  }
+}
+
+export function PackingListApp(this: Remix.Handle) {
+  let items: ListItem[] = loadItems();
   let newItemName = "";
 
   const addItem = () => {
@@ -24,6 +51,7 @@ export function PackingListApp(this: Remix.Handle) {
         checked: false,
       };
       items = [...items, newItem];
+      saveItems(items);
       newItemName = "";
       this.update();
     }
@@ -33,11 +61,13 @@ export function PackingListApp(this: Remix.Handle) {
     items = items.map((item) =>
       item.id === id ? { ...item, checked: !item.checked } : item
     );
+    saveItems(items);
     this.update();
   };
 
   const deleteItem = (id: string) => {
     items = items.filter((item) => item.id !== id);
+    saveItems(items);
     this.update();
   };
 
