@@ -53,7 +53,8 @@ describe("PackingListApp", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(container.textContent).toContain("Packed: 0 / 3");
+    expect(container.textContent).toContain("Progress");
+    expect(container.textContent).toContain("0 / 3");
   });
 
   it("should render input and buttons", async () => {
