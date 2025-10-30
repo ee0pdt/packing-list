@@ -171,7 +171,7 @@ export function PackingListApp(this: Remix.Handle) {
           return (
             <div
               key={item.id}
-              className="relative overflow-hidden rounded-xl"
+              className="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700"
             >
               {/* Delete button background (revealed on swipe) */}
               <div className="absolute inset-0 bg-red-500 flex items-center justify-end px-6">
@@ -195,7 +195,7 @@ export function PackingListApp(this: Remix.Handle) {
                     this.update();
                   }),
                 ]}
-                className="group flex items-center gap-4 p-4 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-all touch-pan-y"
+                className="group flex items-center gap-4 p-4 bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y rounded-xl"
                 style={{
                   transform: `translateX(${finalOffset}px)`,
                   transition: isSwiping ? "none" : "transform 0.3s ease-out",
