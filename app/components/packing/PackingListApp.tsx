@@ -50,55 +50,58 @@ export function PackingListApp(this: Remix.Handle) {
     <div
       css={{
         backgroundColor: "white",
-        borderRadius: "16px",
-        padding: "1.5rem",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+        borderRadius: "2px",
+        padding: "2rem 1.5rem",
+        border: "1px solid #e5e5e5",
         transition: "all 0.3s ease",
         "@media (min-width: 640px)": {
-          padding: "2rem",
-          borderRadius: "20px",
+          padding: "3rem 2.5rem",
         },
         "@media (prefers-color-scheme: dark)": {
-          backgroundColor: "#1e293b",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+          backgroundColor: "#0a0a0a",
+          borderColor: "#2a2a2a",
         },
       }}
     >
       <h2
         css={{
           marginTop: 0,
-          marginBottom: "0.5rem",
-          color: "#1e293b",
-          fontSize: "1.5rem",
-          fontWeight: 700,
+          marginBottom: "3rem",
+          color: "#1a1a1a",
+          fontSize: "1.25rem",
+          fontWeight: 400,
+          letterSpacing: "-0.01em",
           "@media (min-width: 640px)": {
-            fontSize: "1.875rem",
+            fontSize: "1.5rem",
+            marginBottom: "3.5rem",
           },
           "@media (prefers-color-scheme: dark)": {
-            color: "#f1f5f9",
+            color: "#fafafa",
           },
         }}
       >
-        My Packing List
+        Packing List
       </h2>
 
-      <div css={{ marginBottom: "1.5rem" }}>
+      <div css={{ marginBottom: "2.5rem" }}>
         <div
           css={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "0.5rem",
+            alignItems: "baseline",
+            marginBottom: "1rem",
           }}
         >
           <p
             css={{
-              color: "#64748b",
+              color: "#666666",
               fontSize: "0.875rem",
               margin: 0,
-              fontWeight: 600,
+              fontWeight: 400,
+              letterSpacing: "0.02em",
+              textTransform: "uppercase",
               "@media (prefers-color-scheme: dark)": {
-                color: "#94a3b8",
+                color: "#999999",
               },
             }}
           >
@@ -106,12 +109,12 @@ export function PackingListApp(this: Remix.Handle) {
           </p>
           <p
             css={{
-              color: "#667eea",
-              fontSize: "0.875rem",
+              color: "#1a1a1a",
+              fontSize: "1rem",
               margin: 0,
-              fontWeight: 700,
+              fontWeight: 400,
               "@media (prefers-color-scheme: dark)": {
-                color: "#818cf8",
+                color: "#fafafa",
               },
             }}
           >
@@ -121,12 +124,11 @@ export function PackingListApp(this: Remix.Handle) {
         <div
           css={{
             width: "100%",
-            height: "8px",
-            backgroundColor: "#e2e8f0",
-            borderRadius: "9999px",
+            height: "2px",
+            backgroundColor: "#e5e5e5",
             overflow: "hidden",
             "@media (prefers-color-scheme: dark)": {
-              backgroundColor: "#334155",
+              backgroundColor: "#2a2a2a",
             },
           }}
         >
@@ -134,9 +136,11 @@ export function PackingListApp(this: Remix.Handle) {
             css={{
               height: "100%",
               width: `${progress}%`,
-              background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+              backgroundColor: "#1a1a1a",
               transition: "width 0.5s ease",
-              borderRadius: "9999px",
+              "@media (prefers-color-scheme: dark)": {
+                backgroundColor: "#fafafa",
+              },
             }}
           />
         </div>
@@ -144,13 +148,13 @@ export function PackingListApp(this: Remix.Handle) {
 
       <div
         css={{
-          marginBottom: "1.5rem",
+          marginBottom: "3rem",
           display: "flex",
           flexDirection: "column",
-          gap: "0.75rem",
+          gap: "1rem",
           "@media (min-width: 640px)": {
             flexDirection: "row",
-            gap: "0.75rem",
+            gap: "1rem",
           },
         }}
       >
@@ -164,29 +168,33 @@ export function PackingListApp(this: Remix.Handle) {
             }),
             dom.keypress((e) => e.key === "Enter" && addItem()),
           ]}
-          placeholder="Add new item..."
+          placeholder="Add item"
           css={{
             flex: 1,
-            padding: "0.875rem 1rem",
+            padding: "1rem 1.25rem",
             fontSize: "1rem",
-            border: "2px solid #e2e8f0",
-            borderRadius: "12px",
+            border: "1px solid #d4d4d4",
+            borderRadius: "2px",
             fontFamily: "inherit",
             backgroundColor: "white",
-            color: "#1e293b",
+            color: "#1a1a1a",
             transition: "all 0.2s ease",
             "&:focus": {
               outline: "none",
-              borderColor: "#667eea",
-              boxShadow: "0 0 0 3px rgba(102, 126, 234, 0.1)",
+              borderColor: "#1a1a1a",
+            },
+            "&::placeholder": {
+              color: "#999999",
             },
             "@media (prefers-color-scheme: dark)": {
-              backgroundColor: "#0f172a",
-              color: "#f1f5f9",
-              borderColor: "#334155",
+              backgroundColor: "#0a0a0a",
+              color: "#fafafa",
+              borderColor: "#404040",
               "&:focus": {
-                borderColor: "#818cf8",
-                boxShadow: "0 0 0 3px rgba(129, 140, 248, 0.1)",
+                borderColor: "#fafafa",
+              },
+              "&::placeholder": {
+                color: "#666666",
               },
             },
           }}
@@ -194,55 +202,55 @@ export function PackingListApp(this: Remix.Handle) {
         <button
           on={[press(() => addItem())]}
           css={{
-            padding: "0.875rem 2rem",
+            padding: "1rem 2rem",
             fontSize: "1rem",
-            fontWeight: 600,
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            fontWeight: 400,
+            backgroundColor: "#1a1a1a",
             color: "white",
             border: "none",
-            borderRadius: "12px",
+            borderRadius: "2px",
             cursor: "pointer",
             fontFamily: "inherit",
             transition: "all 0.2s ease",
-            minHeight: "44px",
+            minHeight: "50px",
+            letterSpacing: "0.02em",
             "&:hover": {
-              transform: "translateY(-2px)",
-              boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+              backgroundColor: "#333333",
             },
             "&:active": {
-              transform: "translateY(0)",
+              backgroundColor: "#000000",
+            },
+            "@media (prefers-color-scheme: dark)": {
+              backgroundColor: "#fafafa",
+              color: "#1a1a1a",
+              "&:hover": {
+                backgroundColor: "#e5e5e5",
+              },
+              "&:active": {
+                backgroundColor: "#ffffff",
+              },
             },
           }}
         >
-          ➕ Add Item
+          Add
         </button>
       </div>
 
-      <div css={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+      <div css={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         {items.map((item) => (
           <div
             key={item.id}
             css={{
               display: "flex",
               alignItems: "center",
-              gap: "1rem",
-              padding: "1rem",
-              backgroundColor: item.checked ? "#f8fafc" : "white",
-              border: "2px solid #e2e8f0",
-              borderRadius: "12px",
+              gap: "1.25rem",
+              padding: "1.25rem 1.5rem",
+              backgroundColor: "transparent",
+              borderBottom: "1px solid #e5e5e5",
               transition: "all 0.2s ease",
-              minHeight: "60px",
-              "&:hover": {
-                borderColor: "#cbd5e1",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              },
+              minHeight: "64px",
               "@media (prefers-color-scheme: dark)": {
-                backgroundColor: item.checked ? "#0f172a" : "#1e293b",
-                borderColor: "#334155",
-                "&:hover": {
-                  borderColor: "#475569",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                },
+                borderBottomColor: "#2a2a2a",
               },
             }}
           >
@@ -254,12 +262,15 @@ export function PackingListApp(this: Remix.Handle) {
                 width: "20px",
                 height: "20px",
                 cursor: "pointer",
-                accentColor: "#667eea",
+                accentColor: "#1a1a1a",
                 minWidth: "20px",
                 "@media (min-width: 640px)": {
-                  width: "24px",
-                  height: "24px",
-                  minWidth: "24px",
+                  width: "22px",
+                  height: "22px",
+                  minWidth: "22px",
+                },
+                "@media (prefers-color-scheme: dark)": {
+                  accentColor: "#fafafa",
                 },
               }}
             />
@@ -268,15 +279,16 @@ export function PackingListApp(this: Remix.Handle) {
                 flex: 1,
                 fontSize: "1rem",
                 textDecoration: item.checked ? "line-through" : "none",
-                color: item.checked ? "#94a3b8" : "#1e293b",
-                fontWeight: 500,
+                color: item.checked ? "#999999" : "#1a1a1a",
+                fontWeight: 400,
                 wordBreak: "break-word",
                 transition: "all 0.2s ease",
+                opacity: item.checked ? 0.5 : 1,
                 "@media (min-width: 640px)": {
-                  fontSize: "1.125rem",
+                  fontSize: "1.0625rem",
                 },
                 "@media (prefers-color-scheme: dark)": {
-                  color: item.checked ? "#64748b" : "#f1f5f9",
+                  color: item.checked ? "#666666" : "#fafafa",
                 },
               }}
             >
@@ -285,33 +297,35 @@ export function PackingListApp(this: Remix.Handle) {
             <button
               on={[press(() => deleteItem(item.id))]}
               css={{
-                padding: "0.5rem 0.875rem",
-                fontSize: "0.875rem",
-                fontWeight: 600,
-                backgroundColor: "#ef4444",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.8125rem",
+                fontWeight: 400,
+                backgroundColor: "transparent",
+                color: "#999999",
+                border: "1px solid #d4d4d4",
+                borderRadius: "2px",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
-                minHeight: "36px",
-                minWidth: "70px",
+                minHeight: "32px",
+                minWidth: "60px",
+                letterSpacing: "0.02em",
                 "&:hover": {
-                  backgroundColor: "#dc2626",
-                  transform: "scale(1.05)",
-                },
-                "&:active": {
-                  transform: "scale(0.95)",
+                  backgroundColor: "#1a1a1a",
+                  color: "white",
+                  borderColor: "#1a1a1a",
                 },
                 "@media (prefers-color-scheme: dark)": {
-                  backgroundColor: "#b91c1c",
+                  color: "#666666",
+                  borderColor: "#404040",
                   "&:hover": {
-                    backgroundColor: "#991b1b",
+                    backgroundColor: "#fafafa",
+                    color: "#1a1a1a",
+                    borderColor: "#fafafa",
                   },
                 },
               }}
             >
-              🗑️
+              Delete
             </button>
           </div>
         ))}
@@ -321,35 +335,23 @@ export function PackingListApp(this: Remix.Handle) {
         <div
           css={{
             textAlign: "center",
-            padding: "3rem 1rem",
-            marginTop: "1rem",
+            padding: "4rem 1.5rem",
+            marginTop: "2rem",
           }}
         >
-          <div css={{ fontSize: "3rem", marginBottom: "1rem" }}>📦</div>
           <p
             css={{
-              color: "#94a3b8",
-              fontSize: "1.125rem",
+              color: "#999999",
+              fontSize: "0.9375rem",
               margin: 0,
-              fontWeight: 500,
+              fontWeight: 400,
+              letterSpacing: "0.01em",
               "@media (prefers-color-scheme: dark)": {
-                color: "#64748b",
+                color: "#666666",
               },
             }}
           >
-            Your packing list is empty
-          </p>
-          <p
-            css={{
-              color: "#cbd5e1",
-              fontSize: "0.875rem",
-              marginTop: "0.5rem",
-              "@media (prefers-color-scheme: dark)": {
-                color: "#475569",
-              },
-            }}
-          >
-            Add your first item above to get started!
+            No items yet
           </p>
         </div>
       )}

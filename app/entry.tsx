@@ -8,52 +8,51 @@ createRoot(document.getElementById("root")!).render(
       flexDirection: "column",
       minHeight: "100vh",
       width: "100%",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif",
-      backgroundColor: "#f0f4f8",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+      backgroundColor: "#fafafa",
       transition: "background-color 0.3s ease",
       "@media (prefers-color-scheme: dark)": {
-        backgroundColor: "#0f172a",
+        backgroundColor: "#1a1a1a",
       },
     }}
   >
     <header
       css={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "1.25rem 1rem",
-        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        backgroundColor: "#ffffff",
+        color: "#1a1a1a",
+        padding: "2rem 1.5rem",
+        borderBottom: "1px solid #e5e5e5",
         width: "100%",
         "@media (min-width: 640px)": {
-          padding: "1.5rem 2rem",
+          padding: "3rem 2rem",
+        },
+        "@media (prefers-color-scheme: dark)": {
+          backgroundColor: "#0a0a0a",
+          color: "#fafafa",
+          borderBottomColor: "#2a2a2a",
         },
       }}
     >
-      <h1
+      <div
         css={{
-          margin: 0,
-          fontSize: "1.375rem",
-          fontWeight: 700,
-          letterSpacing: "-0.025em",
-          "@media (min-width: 640px)": {
-            fontSize: "1.875rem",
-          },
+          maxWidth: "640px",
+          margin: "0 auto",
         }}
       >
-        ✈️ PackApp
-      </h1>
-      <p
-        css={{
-          margin: "0.25rem 0 0 0",
-          fontSize: "0.8125rem",
-          opacity: 0.9,
-          fontWeight: 300,
-          "@media (min-width: 640px)": {
-            fontSize: "0.875rem",
-          },
-        }}
-      >
-        Never forget anything again
-      </p>
+        <h1
+          css={{
+            margin: 0,
+            fontSize: "1.5rem",
+            fontWeight: 400,
+            letterSpacing: "-0.02em",
+            "@media (min-width: 640px)": {
+              fontSize: "2rem",
+            },
+          }}
+        >
+          PackApp
+        </h1>
+      </div>
     </header>
 
     <main
@@ -61,10 +60,10 @@ createRoot(document.getElementById("root")!).render(
         flex: 1,
         maxWidth: "640px",
         margin: "0 auto",
-        padding: "1rem",
+        padding: "2rem 1.5rem",
         width: "100%",
         "@media (min-width: 640px)": {
-          padding: "2rem 1rem",
+          padding: "3rem 2rem",
         },
       }}
     >

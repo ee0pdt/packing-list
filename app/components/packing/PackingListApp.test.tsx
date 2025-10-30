@@ -29,7 +29,7 @@ describe("PackingListApp", () => {
     // Wait for next tick
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(container.querySelector("h2")?.textContent).toBe("My Packing List");
+    expect(container.querySelector("h2")?.textContent).toBe("Packing List");
   });
 
   it("should display initial items", async () => {

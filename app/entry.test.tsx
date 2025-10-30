@@ -32,7 +32,7 @@ describe("App Entry", () => {
 
     expect(container.querySelector("header h1")?.textContent).toBe("PackApp");
     expect(container.querySelector("main")).toBeTruthy();
-    expect(container.querySelector("h2")?.textContent).toBe("My Packing List");
+    expect(container.querySelector("h2")?.textContent).toBe("Packing List");
   });
 
   it("should render with proper styling classes", () => {
