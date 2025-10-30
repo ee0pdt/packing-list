@@ -47,117 +47,34 @@ export function PackingListApp(this: Remix.Handle) {
     const progress = totalCount > 0 ? (packedCount / totalCount) * 100 : 0;
 
     return (
-    <div
-      css={{
-        backgroundColor: "white",
-        borderRadius: "2px",
-        padding: "2rem 1.5rem",
-        border: "1px solid #e5e5e5",
-        transition: "all 0.3s ease",
-        "@media (min-width: 640px)": {
-          padding: "3rem 2.5rem",
-        },
-        "@media (prefers-color-scheme: dark)": {
-          backgroundColor: "#0a0a0a",
-          borderColor: "#2a2a2a",
-        },
-      }}
-    >
-      <h2
-        css={{
-          marginTop: 0,
-          marginBottom: "3rem",
-          color: "#1a1a1a",
-          fontSize: "1.25rem",
-          fontWeight: 400,
-          letterSpacing: "-0.01em",
-          "@media (min-width: 640px)": {
-            fontSize: "1.5rem",
-            marginBottom: "3.5rem",
-          },
-          "@media (prefers-color-scheme: dark)": {
-            color: "#fafafa",
-          },
-        }}
-      >
-        Packing List
-      </h2>
+    <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft-md border border-neutral-200 dark:border-neutral-700 p-6 sm:p-8 lg:p-10">
+      <div className="mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
+          Packing List
+        </h2>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Keep track of everything you need
+        </p>
+      </div>
 
-      <div css={{ marginBottom: "2.5rem" }}>
-        <div
-          css={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            marginBottom: "1rem",
-          }}
-        >
-          <p
-            css={{
-              color: "#666666",
-              fontSize: "0.875rem",
-              margin: 0,
-              fontWeight: 400,
-              letterSpacing: "0.02em",
-              textTransform: "uppercase",
-              "@media (prefers-color-scheme: dark)": {
-                color: "#999999",
-              },
-            }}
-          >
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
             Progress
-          </p>
-          <p
-            css={{
-              color: "#1a1a1a",
-              fontSize: "1rem",
-              margin: 0,
-              fontWeight: 400,
-              "@media (prefers-color-scheme: dark)": {
-                color: "#fafafa",
-              },
-            }}
-          >
+          </span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
             {packedCount} / {totalCount}
-          </p>
+          </span>
         </div>
-        <div
-          css={{
-            width: "100%",
-            height: "2px",
-            backgroundColor: "#e5e5e5",
-            overflow: "hidden",
-            "@media (prefers-color-scheme: dark)": {
-              backgroundColor: "#2a2a2a",
-            },
-          }}
-        >
+        <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2.5 overflow-hidden">
           <div
-            css={{
-              height: "100%",
-              width: `${progress}%`,
-              backgroundColor: "#1a1a1a",
-              transition: "width 0.5s ease",
-              "@media (prefers-color-scheme: dark)": {
-                backgroundColor: "#fafafa",
-              },
-            }}
+            className="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <div
-        css={{
-          marginBottom: "3rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          "@media (min-width: 640px)": {
-            flexDirection: "row",
-            gap: "1rem",
-          },
-        }}
-      >
+      <div className="mb-8 flex flex-col sm:flex-row gap-3">
         <input
           type="text"
           value={newItemName}
@@ -168,162 +85,41 @@ export function PackingListApp(this: Remix.Handle) {
             }),
             dom.keypress((e) => e.key === "Enter" && addItem()),
           ]}
-          placeholder="Add item"
-          css={{
-            flex: 1,
-            padding: "1rem 1.25rem",
-            fontSize: "1rem",
-            border: "1px solid #d4d4d4",
-            borderRadius: "2px",
-            fontFamily: "inherit",
-            backgroundColor: "white",
-            color: "#1a1a1a",
-            transition: "all 0.2s ease",
-            "&:focus": {
-              outline: "none",
-              borderColor: "#1a1a1a",
-            },
-            "&::placeholder": {
-              color: "#999999",
-            },
-            "@media (prefers-color-scheme: dark)": {
-              backgroundColor: "#0a0a0a",
-              color: "#fafafa",
-              borderColor: "#404040",
-              "&:focus": {
-                borderColor: "#fafafa",
-              },
-              "&::placeholder": {
-                color: "#666666",
-              },
-            },
-          }}
+          placeholder="Add new item..."
+          className="flex-1 px-4 py-3 rounded-xl border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-primary-500 dark:focus:border-primary-400 focus:outline-none transition-colors"
         />
         <button
           on={[press(() => addItem())]}
-          css={{
-            padding: "1rem 2rem",
-            fontSize: "1rem",
-            fontWeight: 400,
-            backgroundColor: "#1a1a1a",
-            color: "white",
-            border: "none",
-            borderRadius: "2px",
-            cursor: "pointer",
-            fontFamily: "inherit",
-            transition: "all 0.2s ease",
-            minHeight: "50px",
-            letterSpacing: "0.02em",
-            "&:hover": {
-              backgroundColor: "#333333",
-            },
-            "&:active": {
-              backgroundColor: "#000000",
-            },
-            "@media (prefers-color-scheme: dark)": {
-              backgroundColor: "#fafafa",
-              color: "#1a1a1a",
-              "&:hover": {
-                backgroundColor: "#e5e5e5",
-              },
-              "&:active": {
-                backgroundColor: "#ffffff",
-              },
-            },
-          }}
+          className="px-6 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 active:bg-primary-800 dark:bg-primary-500 dark:hover:bg-primary-600 dark:active:bg-primary-700 text-white font-semibold transition-colors shadow-sm hover:shadow-md"
         >
-          Add
+          Add Item
         </button>
       </div>
 
-      <div css={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <div className="space-y-3">
         {items.map((item) => (
           <div
             key={item.id}
-            css={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1.25rem",
-              padding: "1.25rem 1.5rem",
-              backgroundColor: "transparent",
-              borderBottom: "1px solid #e5e5e5",
-              transition: "all 0.2s ease",
-              minHeight: "64px",
-              "@media (prefers-color-scheme: dark)": {
-                borderBottomColor: "#2a2a2a",
-              },
-            }}
+            className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-all"
           >
             <input
               type="checkbox"
               checked={item.checked}
               on={[dom.change(() => toggleItem(item.id))]}
-              css={{
-                width: "20px",
-                height: "20px",
-                cursor: "pointer",
-                accentColor: "#1a1a1a",
-                minWidth: "20px",
-                "@media (min-width: 640px)": {
-                  width: "22px",
-                  height: "22px",
-                  minWidth: "22px",
-                },
-                "@media (prefers-color-scheme: dark)": {
-                  accentColor: "#fafafa",
-                },
-              }}
+              className="w-5 h-5 rounded-md cursor-pointer flex-shrink-0"
             />
             <span
-              css={{
-                flex: 1,
-                fontSize: "1rem",
-                textDecoration: item.checked ? "line-through" : "none",
-                color: item.checked ? "#999999" : "#1a1a1a",
-                fontWeight: 400,
-                wordBreak: "break-word",
-                transition: "all 0.2s ease",
-                opacity: item.checked ? 0.5 : 1,
-                "@media (min-width: 640px)": {
-                  fontSize: "1.0625rem",
-                },
-                "@media (prefers-color-scheme: dark)": {
-                  color: item.checked ? "#666666" : "#fafafa",
-                },
-              }}
+              className={`flex-1 text-base sm:text-lg break-words transition-all ${
+                item.checked
+                  ? "line-through text-neutral-400 dark:text-neutral-600"
+                  : "text-neutral-900 dark:text-neutral-50"
+              }`}
             >
               {item.name}
             </span>
             <button
               on={[press(() => deleteItem(item.id))]}
-              css={{
-                padding: "0.5rem 0.75rem",
-                fontSize: "0.8125rem",
-                fontWeight: 400,
-                backgroundColor: "transparent",
-                color: "#999999",
-                border: "1px solid #d4d4d4",
-                borderRadius: "2px",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                minHeight: "32px",
-                minWidth: "60px",
-                letterSpacing: "0.02em",
-                "&:hover": {
-                  backgroundColor: "#1a1a1a",
-                  color: "white",
-                  borderColor: "#1a1a1a",
-                },
-                "@media (prefers-color-scheme: dark)": {
-                  color: "#666666",
-                  borderColor: "#404040",
-                  "&:hover": {
-                    backgroundColor: "#fafafa",
-                    color: "#1a1a1a",
-                    borderColor: "#fafafa",
-                  },
-                },
-              }}
+              className="px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors flex-shrink-0"
             >
               Delete
             </button>
@@ -332,26 +128,17 @@ export function PackingListApp(this: Remix.Handle) {
       </div>
 
       {items.length === 0 && (
-        <div
-          css={{
-            textAlign: "center",
-            padding: "4rem 1.5rem",
-            marginTop: "2rem",
-          }}
-        >
-          <p
-            css={{
-              color: "#999999",
-              fontSize: "0.9375rem",
-              margin: 0,
-              fontWeight: 400,
-              letterSpacing: "0.01em",
-              "@media (prefers-color-scheme: dark)": {
-                color: "#666666",
-              },
-            }}
-          >
+        <div className="text-center py-12 px-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 mb-4">
+            <svg className="w-8 h-8 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-1">
             No items yet
+          </h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            Add your first item to get started
           </p>
         </div>
       )}

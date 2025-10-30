@@ -1,72 +1,21 @@
 import { createRoot } from "@remix-run/dom";
 import { PackingListApp } from "./components/packing/PackingListApp";
+import "./styles.css";
 
 createRoot(document.getElementById("root")!).render(
-  <div
-    css={{
-      display: "flex",
-      flexDirection: "column",
-      minHeight: "100vh",
-      width: "100%",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
-      backgroundColor: "#fafafa",
-      transition: "background-color 0.3s ease",
-      "@media (prefers-color-scheme: dark)": {
-        backgroundColor: "#1a1a1a",
-      },
-    }}
-  >
-    <header
-      css={{
-        backgroundColor: "#ffffff",
-        color: "#1a1a1a",
-        padding: "2rem 1.5rem",
-        borderBottom: "1px solid #e5e5e5",
-        width: "100%",
-        "@media (min-width: 640px)": {
-          padding: "3rem 2rem",
-        },
-        "@media (prefers-color-scheme: dark)": {
-          backgroundColor: "#0a0a0a",
-          color: "#fafafa",
-          borderBottomColor: "#2a2a2a",
-        },
-      }}
-    >
-      <div
-        css={{
-          maxWidth: "640px",
-          margin: "0 auto",
-        }}
-      >
-        <h1
-          css={{
-            margin: 0,
-            fontSize: "1.5rem",
-            fontWeight: 400,
-            letterSpacing: "-0.02em",
-            "@media (min-width: 640px)": {
-              fontSize: "2rem",
-            },
-          }}
-        >
+  <div className="flex flex-col min-h-screen bg-neutral-50 dark:bg-neutral-900">
+    <header className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+      <div className="max-w-4xl mx-auto px-6 py-8 sm:px-8 sm:py-10">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">
           PackApp
         </h1>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          Your smart packing companion
+        </p>
       </div>
     </header>
 
-    <main
-      css={{
-        flex: 1,
-        maxWidth: "640px",
-        margin: "0 auto",
-        padding: "2rem 1.5rem",
-        width: "100%",
-        "@media (min-width: 640px)": {
-          padding: "3rem 2rem",
-        },
-      }}
-    >
+    <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-8 sm:px-8 sm:py-12">
       <PackingListApp />
     </main>
   </div>
