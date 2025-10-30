@@ -166,23 +166,16 @@ export function PackingListApp(this: Remix.Handle) {
         {items.map((item) => {
           const isThisItemSwiped = swipedItemId === item.id;
           const swipeOffset = isSwiping && isThisItemSwiped ? Math.min(0, -(touchStartX - touchCurrentX)) : 0;
-          const finalOffset = isThisItemSwiped && !isSwiping ? -100 : swipeOffset;
+          const itemOffset = isThisItemSwiped && !isSwiping ? -100 : swipeOffset;
+
+          // Delete button slides in from right
+          const deleteButtonOffset = isThisItemSwiped && !isSwiping ? 0 : (isSwiping && isThisItemSwiped ? Math.max(-100, swipeOffset) : -100);
 
           return (
             <div
               key={item.id}
-              className="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700"
+              className="relative"
             >
-              {/* Delete button background (revealed on swipe) */}
-              <div className="absolute inset-0 bg-red-500 flex items-center justify-end px-6">
-                <button
-                  on={[press(() => deleteItem(item.id))]}
-                  className="text-white font-semibold text-sm"
-                >
-                  Delete
-                </button>
-              </div>
-
               {/* Main item content (swipeable) */}
               <div
                 on={[
@@ -195,9 +188,9 @@ export function PackingListApp(this: Remix.Handle) {
                     this.update();
                   }),
                 ]}
-                className="group flex items-center gap-4 p-4 bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y rounded-xl"
+                className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative z-10"
                 style={{
-                  transform: `translateX(${finalOffset}px)`,
+                  transform: `translateX(${itemOffset}px)`,
                   transition: isSwiping ? "none" : "transform 0.3s ease-out",
                 }}
               >
@@ -220,6 +213,22 @@ export function PackingListApp(this: Remix.Handle) {
                 <button
                   on={[press(() => deleteItem(item.id))]}
                   className="hidden sm:block px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors flex-shrink-0"
+                >
+                  Delete
+                </button>
+              </div>
+
+              {/* Delete button that slides in from right (mobile only) */}
+              <div
+                className="absolute top-0 right-0 h-full flex items-center sm:hidden"
+                style={{
+                  transform: `translateX(${deleteButtonOffset}px)`,
+                  transition: isSwiping ? "none" : "transform 0.3s ease-out",
+                }}
+              >
+                <button
+                  on={[press(() => deleteItem(item.id))]}
+                  className="h-full px-6 bg-red-500 text-white font-semibold text-sm rounded-r-xl flex items-center"
                 >
                   Delete
                 </button>
