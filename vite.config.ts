@@ -12,6 +12,17 @@ export default defineConfig({
     open: true,
     host: true,
   },
+  preview: {
+    host: "0.0.0.0",
+    port: 4173,
+    strictPort: false,
+    allowedHosts: [
+      ".railway.app",
+      ".up.railway.app",
+      "localhost",
+      "127.0.0.1",
+    ],
+  },
   esbuild: {
     jsxImportSource: "@remix-run/dom",
   },
