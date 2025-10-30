@@ -187,7 +187,7 @@ export function PackingListApp(this: Remix.Handle) {
                     this.update();
                   }),
                 ]}
-                className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative z-10"
+                className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative"
               >
                 <input
                   type="checkbox"
@@ -213,9 +213,9 @@ export function PackingListApp(this: Remix.Handle) {
                 </button>
               </div>
 
-              {/* Delete button that slides in from right (mobile only) - cropped by overflow-hidden */}
+              {/* Delete button that slides in from right (mobile only) - on top of item */}
               <div
-                className="absolute top-0 right-0 h-full flex items-center sm:hidden pointer-events-none"
+                className="absolute top-0 right-0 h-full flex items-center sm:hidden pointer-events-none z-20"
                 style={{
                   transform: `translateX(${deleteButtonOffset}px)`,
                   transition: isSwiping ? "none" : "transform 0.3s ease-out",
@@ -223,7 +223,7 @@ export function PackingListApp(this: Remix.Handle) {
               >
                 <button
                   on={[press(() => deleteItem(item.id))]}
-                  className="h-full px-6 bg-red-500 text-white font-semibold text-sm flex items-center pointer-events-auto"
+                  className="h-full px-6 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm flex items-center pointer-events-auto shadow-lg"
                 >
                   Delete
                 </button>
