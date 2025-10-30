@@ -1,4 +1,6 @@
 import type { Remix } from "@remix-run/dom";
+import { press } from "@remix-run/events/press";
+import { dom } from "@remix-run/events";
 
 interface ListItem {
   id: string;
@@ -64,11 +66,13 @@ export function PackingListApp(this: Remix.Handle) {
         <input
           type="text"
           value={newItemName}
-          onInput={(e) => {
-            newItemName = (e.target as HTMLInputElement).value;
-            this.update();
-          }}
-          onKeyPress={(e) => e.key === "Enter" && addItem()}
+          on={[
+            dom.input((e) => {
+              newItemName = (e.target as HTMLInputElement).value;
+              this.update();
+            }),
+            dom.keypress((e) => e.key === "Enter" && addItem()),
+          ]}
           placeholder="Add new item..."
           css={{
             flex: 1,
@@ -84,7 +88,7 @@ export function PackingListApp(this: Remix.Handle) {
           }}
         />
         <button
-          onClick={addItem}
+          on={[press(() => addItem())]}
           css={{
             padding: "0.75rem 1.5rem",
             fontSize: "1rem",
@@ -121,7 +125,7 @@ export function PackingListApp(this: Remix.Handle) {
             <input
               type="checkbox"
               checked={item.checked}
-              onChange={() => toggleItem(item.id)}
+              on={[dom.change(() => toggleItem(item.id))]}
               css={{
                 width: "20px",
                 height: "20px",
@@ -139,7 +143,7 @@ export function PackingListApp(this: Remix.Handle) {
               {item.name}
             </span>
             <button
-              onClick={() => deleteItem(item.id)}
+              on={[press(() => deleteItem(item.id))]}
               css={{
                 padding: "0.5rem 0.75rem",
                 fontSize: "0.9rem",
