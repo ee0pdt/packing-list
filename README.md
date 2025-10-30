@@ -1,18 +1,17 @@
-# Packing List App
+# PackApp - Remix v3 Experimental
 
-A simple and efficient (maybe) packing list application built with React, TypeScript, and MUI. Create, manage, and reuse packing lists for your trips and adventures.
+A packing list application built with the experimental Remix v3 framework (@remix-run/dom).
 
-## 🌐 Live Demo
+## ⚠️ Warning
 
-Visit the live application at [https://ee0pdt.github.io/packing-list/](https://ee0pdt.github.io/packing-list/)
+This uses **experimental, pre-release** Remix v3 packages that are marked "do not use in production". This is NOT React - it's a completely different rendering engine.
 
 ## ✨ Features
 
-- [TODO] Create and manage multiple packing lists
-- Add, edit, and remove items from your lists
-- Mark items as packed/unpacked
-- [TODO] Responsive design that works on both desktop and mobile
-- [TODO] Dark mode support
+- Add, check, and delete packing items
+- Track packed vs unpacked items
+- Clean, minimal interface
+- Built with experimental @remix-run/dom (NOT React!)
 
 ## 🚀 Getting Started
 
@@ -48,18 +47,54 @@ To create a production build:
 npm run build
 ```
 
-To preview the production build:
+To preview the production build locally:
 ```bash
 npm run preview
 ```
 
-## 🛠️ Built With
+Or start the production server:
+```bash
+npm start
+```
 
-- [React](https://reactjs.org/) - UI framework
-- [TypeScript](https://www.typescriptlang.org/) - Language
-- [Vite](https://vitejs.dev/) - Build tool
-- [MUI](https://mui.com/) - Component library
-- [React Router](https://reactrouter.com/) - Routing
+## 🧪 Testing
+
+```bash
+npm test           # Run tests in watch mode
+npm run test:run   # Run tests once
+npm run test:ui    # Open Vitest UI
+```
+
+## 🛠️ Tech Stack
+
+- **Framework**: @remix-run/dom v0.0.0-experimental-remix-jam.6 (NOT React!)
+- **Events**: @remix-run/events v0.0.0-experimental-remix-jam.5
+- **Build Tool**: Vite 6
+- **Testing**: Vitest with happy-dom
+- **Styling**: Inline CSS with css prop
+- **Language**: TypeScript
+
+## 🚀 Deployment
+
+### Railway
+
+This app is configured for Railway deployment:
+
+1. Push to GitHub
+2. Connect your repo to Railway
+3. Railway will automatically:
+   - Run `npm install && npm run build`
+   - Start with `npm start`
+   - Bind to `$PORT` environment variable
+
+The app serves from the root path `/`.
+
+### Other Platforms
+
+For other platforms, use:
+- **Build command**: `npm install && npm run build`
+- **Start command**: `npm start`
+- **Output directory**: `dist/`
 
 ## 📝 License
 
