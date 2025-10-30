@@ -42,6 +42,41 @@ function saveItems(items: ListItem[]) {
 export function PackingListApp(this: Remix.Handle) {
   let items: ListItem[] = loadItems();
   let newItemName = "";
+  let swipedItemId: string | null = null;
+  let touchStartX = 0;
+  let touchCurrentX = 0;
+  let isSwiping = false;
+
+  const handleTouchStart = (e: TouchEvent, itemId: string) => {
+    touchStartX = e.touches[0].clientX;
+    touchCurrentX = touchStartX;
+    isSwiping = true;
+    swipedItemId = itemId;
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isSwiping) return;
+    touchCurrentX = e.touches[0].clientX;
+    this.update();
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwiping) return;
+    const swipeDistance = touchStartX - touchCurrentX;
+
+    // If swiped left more than 80px, keep delete button visible
+    if (swipeDistance > 80) {
+      // Keep swipedItemId set
+    } else {
+      // Reset if not swiped enough
+      swipedItemId = null;
+    }
+
+    isSwiping = false;
+    touchStartX = 0;
+    touchCurrentX = 0;
+    this.update();
+  };
 
   const addItem = () => {
     if (newItemName.trim()) {
@@ -68,6 +103,7 @@ export function PackingListApp(this: Remix.Handle) {
   const deleteItem = (id: string) => {
     items = items.filter((item) => item.id !== id);
     saveItems(items);
+    swipedItemId = null;
     this.update();
   };
 
@@ -127,34 +163,70 @@ export function PackingListApp(this: Remix.Handle) {
       </div>
 
       <div className="space-y-3">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-all"
-          >
-            <input
-              type="checkbox"
-              checked={item.checked}
-              on={[dom.change(() => toggleItem(item.id))]}
-              className="w-5 h-5 rounded-md cursor-pointer flex-shrink-0"
-            />
-            <span
-              className={`flex-1 text-base sm:text-lg break-words transition-all ${
-                item.checked
-                  ? "line-through text-neutral-400 dark:text-neutral-600"
-                  : "text-neutral-900 dark:text-neutral-50"
-              }`}
+        {items.map((item) => {
+          const isThisItemSwiped = swipedItemId === item.id;
+          const swipeOffset = isSwiping && isThisItemSwiped ? Math.min(0, -(touchStartX - touchCurrentX)) : 0;
+          const finalOffset = isThisItemSwiped && !isSwiping ? -100 : swipeOffset;
+
+          return (
+            <div
+              key={item.id}
+              className="relative overflow-hidden rounded-xl"
             >
-              {item.name}
-            </span>
-            <button
-              on={[press(() => deleteItem(item.id))]}
-              className="px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors flex-shrink-0"
-            >
-              Delete
-            </button>
-          </div>
-        ))}
+              {/* Delete button background (revealed on swipe) */}
+              <div className="absolute inset-0 bg-red-500 flex items-center justify-end px-6">
+                <button
+                  on={[press(() => deleteItem(item.id))]}
+                  className="text-white font-semibold text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+
+              {/* Main item content (swipeable) */}
+              <div
+                on={[
+                  dom.touchstart((e) => handleTouchStart(e, item.id)),
+                  dom.touchmove(handleTouchMove),
+                  dom.touchend(handleTouchEnd),
+                  dom.touchcancel(() => {
+                    swipedItemId = null;
+                    isSwiping = false;
+                    this.update();
+                  }),
+                ]}
+                className="group flex items-center gap-4 p-4 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-all touch-pan-y"
+                style={{
+                  transform: `translateX(${finalOffset}px)`,
+                  transition: isSwiping ? "none" : "transform 0.3s ease-out",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={item.checked}
+                  on={[dom.change(() => toggleItem(item.id))]}
+                  className="w-5 h-5 rounded-md cursor-pointer flex-shrink-0"
+                />
+                <span
+                  className={`flex-1 text-base sm:text-lg break-words transition-all ${
+                    item.checked
+                      ? "line-through text-neutral-400 dark:text-neutral-600"
+                      : "text-neutral-900 dark:text-neutral-50"
+                  }`}
+                >
+                  {item.name}
+                </span>
+                {/* Desktop only: visible delete button */}
+                <button
+                  on={[press(() => deleteItem(item.id))]}
+                  className="hidden sm:block px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors flex-shrink-0"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {items.length === 0 && (
