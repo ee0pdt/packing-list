@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (.dark &);
+
 @theme {
   /* Extended spacing scale for perfect balance */
   --spacing-18: 4.5rem;
