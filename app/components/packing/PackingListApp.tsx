@@ -166,17 +166,16 @@ export function PackingListApp(this: Remix.Handle) {
         {items.map((item) => {
           const isThisItemSwiped = swipedItemId === item.id;
           const swipeOffset = isSwiping && isThisItemSwiped ? Math.min(0, -(touchStartX - touchCurrentX)) : 0;
-          const itemOffset = isThisItemSwiped && !isSwiping ? -100 : swipeOffset;
 
-          // Delete button slides in from right
-          const deleteButtonOffset = isThisItemSwiped && !isSwiping ? 0 : (isSwiping && isThisItemSwiped ? Math.max(-100, swipeOffset) : -100);
+          // Delete button slides in from right (starts at 100px off-screen, ends at 0)
+          const deleteButtonOffset = isThisItemSwiped && !isSwiping ? 0 : (isSwiping && isThisItemSwiped ? Math.max(0, 100 + swipeOffset) : 100);
 
           return (
             <div
               key={item.id}
-              className="relative"
+              className="relative overflow-hidden rounded-xl"
             >
-              {/* Main item content (swipeable) */}
+              {/* Main item content (stays stationary) */}
               <div
                 on={[
                   dom.touchstart((e) => handleTouchStart(e, item.id)),
@@ -189,10 +188,6 @@ export function PackingListApp(this: Remix.Handle) {
                   }),
                 ]}
                 className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative z-10"
-                style={{
-                  transform: `translateX(${itemOffset}px)`,
-                  transition: isSwiping ? "none" : "transform 0.3s ease-out",
-                }}
               >
                 <input
                   type="checkbox"
@@ -218,9 +213,9 @@ export function PackingListApp(this: Remix.Handle) {
                 </button>
               </div>
 
-              {/* Delete button that slides in from right (mobile only) */}
+              {/* Delete button that slides in from right (mobile only) - cropped by overflow-hidden */}
               <div
-                className="absolute top-0 right-0 h-full flex items-center sm:hidden"
+                className="absolute top-0 right-0 h-full flex items-center sm:hidden pointer-events-none"
                 style={{
                   transform: `translateX(${deleteButtonOffset}px)`,
                   transition: isSwiping ? "none" : "transform 0.3s ease-out",
@@ -228,7 +223,7 @@ export function PackingListApp(this: Remix.Handle) {
               >
                 <button
                   on={[press(() => deleteItem(item.id))]}
-                  className="h-full px-6 bg-red-500 text-white font-semibold text-sm rounded-r-xl flex items-center"
+                  className="h-full px-6 bg-red-500 text-white font-semibold text-sm flex items-center pointer-events-auto"
                 >
                   Delete
                 </button>
