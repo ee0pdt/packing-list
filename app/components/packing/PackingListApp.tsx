@@ -46,6 +46,7 @@ export function PackingListApp(this: Remix.Handle) {
   let touchStartX = 0;
   let touchCurrentX = 0;
   let isSwiping = false;
+  let justAddedItemId: string | null = null;
 
   const handleTouchStart = (e: TouchEvent, itemId: string) => {
     touchStartX = e.touches[0].clientX;
@@ -88,7 +89,14 @@ export function PackingListApp(this: Remix.Handle) {
       items = [...items, newItem];
       saveItems(items);
       newItemName = "";
+      justAddedItemId = newItem.id;
       this.update();
+
+      // Clear the animation flag after animation completes
+      setTimeout(() => {
+        justAddedItemId = null;
+        this.update();
+      }, 500);
     }
   };
 
@@ -173,7 +181,7 @@ export function PackingListApp(this: Remix.Handle) {
           return (
             <div
               key={item.id}
-              className="relative overflow-hidden rounded-xl"
+              className={`relative overflow-hidden rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''}`}
             >
               {/* Main item content (stays stationary) */}
               <div
@@ -218,7 +226,7 @@ export function PackingListApp(this: Remix.Handle) {
                 className="absolute top-0 right-0 h-full flex items-center sm:hidden pointer-events-none z-20"
                 style={{
                   transform: `translateX(${deleteButtonOffset}px)`,
-                  transition: isSwiping ? "none" : "transform 0.3s ease-out",
+                  transition: isSwiping ? "none" : "transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
                 }}
               >
                 <button
