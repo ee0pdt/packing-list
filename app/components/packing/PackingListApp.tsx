@@ -48,6 +48,13 @@ export function PackingListApp(this: Remix.Handle) {
   let isSwiping = false;
   let justAddedItemId: string | null = null;
 
+  // Drag and drop state
+  let draggedItemId: string | null = null;
+  let dragStartY = 0;
+  let dragCurrentY = 0;
+  let isDragging = false;
+  let dragOverItemId: string | null = null;
+
   // Dark mode state - check localStorage or system preference
   const getInitialTheme = () => {
     const stored = localStorage.getItem('theme');
@@ -137,6 +144,70 @@ export function PackingListApp(this: Remix.Handle) {
     this.update();
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (e: TouchEvent, itemId: string) => {
+    e.stopPropagation();
+    dragStartY = e.touches[0].clientY;
+    dragCurrentY = dragStartY;
+    isDragging = true;
+    draggedItemId = itemId;
+    this.update();
+  };
+
+  const handleDragMove = (e: TouchEvent) => {
+    if (!isDragging || !draggedItemId) return;
+    e.preventDefault();
+    dragCurrentY = e.touches[0].clientY;
+
+    // Find which item we're hovering over
+    const itemElements = document.querySelectorAll('[data-item-id]');
+    let foundOverItem = false;
+
+    itemElements.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+
+      if (dragCurrentY >= rect.top && dragCurrentY <= rect.bottom) {
+        const itemId = el.getAttribute('data-item-id');
+        if (itemId && itemId !== draggedItemId) {
+          dragOverItemId = itemId;
+          foundOverItem = true;
+        }
+      }
+    });
+
+    if (!foundOverItem) {
+      dragOverItemId = null;
+    }
+
+    this.update();
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging || !draggedItemId) return;
+
+    // Reorder items if we're over a different item
+    if (dragOverItemId && dragOverItemId !== draggedItemId) {
+      const draggedIndex = items.findIndex(item => item.id === draggedItemId);
+      const targetIndex = items.findIndex(item => item.id === dragOverItemId);
+
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        const newItems = [...items];
+        const [draggedItem] = newItems.splice(draggedIndex, 1);
+        newItems.splice(targetIndex, 0, draggedItem);
+        items = newItems;
+        saveItems(items);
+      }
+    }
+
+    isDragging = false;
+    draggedItemId = null;
+    dragOverItemId = null;
+    dragStartY = 0;
+    dragCurrentY = 0;
+    this.update();
+  };
+
   return () => {
     const packedCount = items.filter((item) => item.checked).length;
     const totalCount = items.length;
@@ -217,10 +288,24 @@ export function PackingListApp(this: Remix.Handle) {
           // Delete button slides in from right (starts at 100px off-screen, ends at 0)
           const deleteButtonOffset = isThisItemSwiped && !isSwiping ? 0 : (isSwiping && isThisItemSwiped ? Math.max(0, 100 + swipeOffset) : 100);
 
+          const isBeingDragged = draggedItemId === item.id;
+          const isDragOver = dragOverItemId === item.id;
+
           return (
             <div
               key={item.id}
-              className={`relative overflow-hidden rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''}`}
+              data-item-id={item.id}
+              className={`relative overflow-hidden rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'opacity-50 scale-105' : ''} ${isDragOver ? 'ring-2 ring-primary-500' : ''} transition-all`}
+              on={[
+                dom.touchmove(handleDragMove),
+                dom.touchend(handleDragEnd),
+                dom.touchcancel(() => {
+                  isDragging = false;
+                  draggedItemId = null;
+                  dragOverItemId = null;
+                  this.update();
+                }),
+              ]}
             >
               {/* Main item content (stays stationary) */}
               <div
@@ -234,8 +319,21 @@ export function PackingListApp(this: Remix.Handle) {
                     this.update();
                   }),
                 ]}
-                className="group flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative"
+                className="group flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative"
               >
+                {/* Drag handle */}
+                <button
+                  on={[
+                    dom.touchstart((e) => handleDragStart(e, item.id)),
+                  ]}
+                  className="touch-none cursor-grab active:cursor-grabbing text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-400 flex-shrink-0 p-1"
+                  aria-label="Drag to reorder"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 3C9 2.44772 8.55228 2 8 2C7.44772 2 7 2.44772 7 3V21C7 21.5523 7.44772 22 8 22C8.55228 22 9 21.5523 9 21V3Z"/>
+                    <path d="M17 3C17 2.44772 16.5523 2 16 2C15.4477 2 15 2.44772 15 3V21C15 21.5523 15.4477 22 16 22C16.5523 22 17 21.5523 17 21V3Z"/>
+                  </svg>
+                </button>
                 <input
                   type="checkbox"
                   checked={item.checked}
