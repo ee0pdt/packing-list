@@ -361,12 +361,10 @@ export function PackingListApp(this: Remix.Handle) {
                     on={[
                       dom.touchstart((e) => handleDragStart(e, item.id)),
                     ]}
-                    className="touch-none cursor-grab active:cursor-grabbing flex-shrink-0 p-2 -m-1"
+                    className="touch-none cursor-grab active:cursor-grabbing flex-shrink-0 p-2 -m-1 text-lg font-bold text-neutral-600 dark:text-neutral-400"
                     aria-label="Drag to reorder"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-neutral-900 dark:text-neutral-100" fill="currentColor" viewBox="0 0 24 24">
-                      <circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
-                    </svg>
+                    ⋮⋮
                   </button>
 
                   <input
@@ -394,14 +392,12 @@ export function PackingListApp(this: Remix.Handle) {
                         e.stopPropagation();
                         toggleDropdown(item.id);
                       })]}
-                      className="p-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                      className="p-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors text-xl font-bold text-neutral-600 dark:text-neutral-400"
                       aria-label="Item options"
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="true"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-neutral-900 dark:text-neutral-100" fill="currentColor" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
-                      </svg>
+                      ⋮
                     </button>
 
                     {isDropdownOpen && (
