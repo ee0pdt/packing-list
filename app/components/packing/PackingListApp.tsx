@@ -295,7 +295,7 @@ export function PackingListApp(this: Remix.Handle) {
             <div
               key={item.id}
               data-item-id={item.id}
-              className={`relative overflow-hidden rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'opacity-50 scale-105' : ''} ${isDragOver ? 'ring-2 ring-primary-500' : ''} transition-all`}
+              className={`relative overflow-hidden rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'shadow-2xl scale-105 z-50' : ''} ${isDragOver ? 'ring-2 ring-primary-500' : ''} transition-all`}
               on={[
                 dom.touchmove(handleDragMove),
                 dom.touchend(handleDragEnd),
@@ -321,17 +321,21 @@ export function PackingListApp(this: Remix.Handle) {
                 ]}
                 className="group flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative"
               >
-                {/* Drag handle */}
+                {/* Drag handle - larger touch target */}
                 <button
                   on={[
                     dom.touchstart((e) => handleDragStart(e, item.id)),
                   ]}
-                  className="touch-none cursor-grab active:cursor-grabbing text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-400 flex-shrink-0 p-1"
+                  className="touch-none cursor-grab active:cursor-grabbing flex-shrink-0 p-3 -m-2"
                   aria-label="Drag to reorder"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 3C9 2.44772 8.55228 2 8 2C7.44772 2 7 2.44772 7 3V21C7 21.5523 7.44772 22 8 22C8.55228 22 9 21.5523 9 21V3Z"/>
-                    <path d="M17 3C17 2.44772 16.5523 2 16 2C15.4477 2 15 2.44772 15 3V21C15 21.5523 15.4477 22 16 22C16.5523 22 17 21.5523 17 21V3Z"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="8" cy="6" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
+                    <circle cx="16" cy="6" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
+                    <circle cx="8" cy="12" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
+                    <circle cx="16" cy="12" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
+                    <circle cx="8" cy="18" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
+                    <circle cx="16" cy="18" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
                   </svg>
                 </button>
                 <input
