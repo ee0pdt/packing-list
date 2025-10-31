@@ -8,6 +8,12 @@ interface ListItem {
   checked: boolean;
 }
 
+interface DropdownState {
+  openItemId: string | null;
+  editingItemId: string | null;
+  editingItemName: string;
+}
+
 const STORAGE_KEY = "packapp-items";
 
 // Load items from localStorage
@@ -42,10 +48,6 @@ function saveItems(items: ListItem[]) {
 export function PackingListApp(this: Remix.Handle) {
   let items: ListItem[] = loadItems();
   let newItemName = "";
-  let swipedItemId: string | null = null;
-  let touchStartX = 0;
-  let touchCurrentX = 0;
-  let isSwiping = false;
   let justAddedItemId: string | null = null;
 
   // Drag and drop state
@@ -54,6 +56,11 @@ export function PackingListApp(this: Remix.Handle) {
   let dragCurrentY = 0;
   let isDragging = false;
   let dragOverItemId: string | null = null;
+
+  // Dropdown and edit state
+  let openDropdownId: string | null = null;
+  let editingItemId: string | null = null;
+  let editingItemName: string = "";
 
   // Dark mode state - check localStorage or system preference
   const getInitialTheme = () => {
@@ -77,36 +84,18 @@ export function PackingListApp(this: Remix.Handle) {
   document.documentElement.classList.toggle('dark', theme === 'dark');
   document.body.classList.toggle('dark', theme === 'dark');
 
-  const handleTouchStart = (e: TouchEvent, itemId: string) => {
-    touchStartX = e.touches[0].clientX;
-    touchCurrentX = touchStartX;
-    isSwiping = true;
-    swipedItemId = itemId;
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!isSwiping) return;
-    touchCurrentX = e.touches[0].clientX;
-    this.update();
-  };
-
-  const handleTouchEnd = () => {
-    if (!isSwiping) return;
-    const swipeDistance = touchStartX - touchCurrentX;
-
-    // If swiped left more than 80px, keep delete button visible
-    if (swipeDistance > 80) {
-      // Keep swipedItemId set
-    } else {
-      // Reset if not swiped enough
-      swipedItemId = null;
+  // Close dropdown when clicking outside
+  const handleClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('[data-dropdown]')) {
+      openDropdownId = null;
+      this.update();
     }
-
-    isSwiping = false;
-    touchStartX = 0;
-    touchCurrentX = 0;
-    this.update();
   };
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', handleClickOutside);
+  }
 
   const addItem = () => {
     if (newItemName.trim()) {
@@ -140,7 +129,42 @@ export function PackingListApp(this: Remix.Handle) {
   const deleteItem = (id: string) => {
     items = items.filter((item) => item.id !== id);
     saveItems(items);
-    swipedItemId = null;
+    openDropdownId = null;
+    this.update();
+  };
+
+  const toggleDropdown = (id: string) => {
+    openDropdownId = openDropdownId === id ? null : id;
+    this.update();
+  };
+
+  const startEdit = (id: string) => {
+    const item = items.find(i => i.id === id);
+    if (item) {
+      editingItemId = id;
+      editingItemName = item.name;
+      openDropdownId = null;
+      this.update();
+    }
+  };
+
+  const saveEdit = () => {
+    if (editingItemId && editingItemName.trim()) {
+      items = items.map(item =>
+        item.id === editingItemId
+          ? { ...item, name: editingItemName.trim() }
+          : item
+      );
+      saveItems(items);
+    }
+    editingItemId = null;
+    editingItemName = "";
+    this.update();
+  };
+
+  const cancelEdit = () => {
+    editingItemId = null;
+    editingItemName = "";
     this.update();
   };
 
@@ -230,12 +254,12 @@ export function PackingListApp(this: Remix.Handle) {
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
           {theme === 'light' ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 stroke-neutral-700" fill="none" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-neutral-700" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 stroke-neutral-200" fill="none" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-neutral-200" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
             </svg>
           )}
         </button>
@@ -282,20 +306,16 @@ export function PackingListApp(this: Remix.Handle) {
 
       <div className="space-y-3">
         {items.map((item) => {
-          const isThisItemSwiped = swipedItemId === item.id;
-          const swipeOffset = isSwiping && isThisItemSwiped ? Math.min(0, -(touchStartX - touchCurrentX)) : 0;
-
-          // Delete button slides in from right (starts at 100px off-screen, ends at 0)
-          const deleteButtonOffset = isThisItemSwiped && !isSwiping ? 0 : (isSwiping && isThisItemSwiped ? Math.max(0, 100 + swipeOffset) : 100);
-
           const isBeingDragged = draggedItemId === item.id;
           const isDragOver = dragOverItemId === item.id;
+          const isEditing = editingItemId === item.id;
+          const isDropdownOpen = openDropdownId === item.id;
 
           return (
             <div
               key={item.id}
               data-item-id={item.id}
-              className={`relative overflow-hidden rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'shadow-2xl scale-105 z-50' : ''} ${isDragOver ? 'ring-2 ring-primary-500' : ''} transition-all`}
+              className={`relative rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'shadow-2xl scale-105 z-50' : ''} ${isDragOver ? 'ring-2 ring-primary-500' : ''} transition-all`}
               on={[
                 dom.touchmove(handleDragMove),
                 dom.touchend(handleDragEnd),
@@ -307,76 +327,120 @@ export function PackingListApp(this: Remix.Handle) {
                 }),
               ]}
             >
-              {/* Main item content (stays stationary) */}
-              <div
-                on={[
-                  dom.touchstart((e) => handleTouchStart(e, item.id)),
-                  dom.touchmove(handleTouchMove),
-                  dom.touchend(handleTouchEnd),
-                  dom.touchcancel(() => {
-                    swipedItemId = null;
-                    isSwiping = false;
-                    this.update();
-                  }),
-                ]}
-                className="group flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors touch-pan-y relative"
-              >
-                {/* Drag handle - larger touch target */}
-                <button
-                  on={[
-                    dom.touchstart((e) => handleDragStart(e, item.id)),
-                  ]}
-                  className="touch-none cursor-grab active:cursor-grabbing flex-shrink-0 p-3 -m-2"
-                  aria-label="Drag to reorder"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="8" cy="6" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
-                    <circle cx="16" cy="6" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
-                    <circle cx="8" cy="12" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
-                    <circle cx="16" cy="12" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
-                    <circle cx="8" cy="18" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
-                    <circle cx="16" cy="18" r="2" className="fill-neutral-400 dark:fill-neutral-500"/>
-                  </svg>
-                </button>
-                <input
-                  type="checkbox"
-                  checked={item.checked}
-                  on={[dom.change(() => toggleItem(item.id))]}
-                  className="w-5 h-5 rounded-md cursor-pointer flex-shrink-0"
-                />
-                <span
-                  className={`flex-1 text-base sm:text-lg break-words transition-all ${
-                    item.checked
-                      ? "line-through text-neutral-400 dark:text-neutral-600"
-                      : "text-neutral-900 dark:text-neutral-50"
-                  }`}
-                >
-                  {item.name}
-                </span>
-                {/* Desktop only: visible delete button */}
-                <button
-                  on={[press(() => deleteItem(item.id))]}
-                  className="hidden sm:block px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors flex-shrink-0"
-                >
-                  Delete
-                </button>
-              </div>
+              {isEditing ? (
+                /* Edit mode */
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-primary-50 dark:bg-primary-950/20 border-2 border-primary-500 dark:border-primary-600">
+                  <input
+                    type="text"
+                    value={editingItemName}
+                    on={[
+                      dom.input((e) => {
+                        editingItemName = (e.target as HTMLInputElement).value;
+                        this.update();
+                      }),
+                      dom.keypress((e) => {
+                        if (e.key === "Enter") saveEdit();
+                        if (e.key === "Escape") cancelEdit();
+                      }),
+                    ]}
+                    className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 focus:border-primary-500 dark:focus:border-primary-400 focus:outline-none"
+                    autoFocus
+                  />
+                  <button
+                    on={[press(() => saveEdit())]}
+                    className="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm transition-colors"
+                  >
+                    Save
+                  </button>
+                  <button
+                    on={[press(() => cancelEdit())]}
+                    className="px-4 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-neutral-50 font-medium text-sm transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                /* Normal mode */
+                <div className="group flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors relative">
+                  {/* Drag handle */}
+                  <button
+                    on={[
+                      dom.touchstart((e) => handleDragStart(e, item.id)),
+                    ]}
+                    className="touch-none cursor-grab active:cursor-grabbing flex-shrink-0 p-2 -m-1 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400"
+                    aria-label="Drag to reorder"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                      <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
+                    </svg>
+                  </button>
 
-              {/* Delete button that slides in from right (mobile only) - on top of item */}
-              <div
-                className="absolute top-0 right-0 h-full flex items-center sm:hidden pointer-events-none z-20"
-                style={{
-                  transform: `translateX(${deleteButtonOffset}px)`,
-                  transition: isSwiping ? "none" : "transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-                }}
-              >
-                <button
-                  on={[press(() => deleteItem(item.id))]}
-                  className="h-full px-6 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm flex items-center pointer-events-auto shadow-lg"
-                >
-                  Delete
-                </button>
-              </div>
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    on={[dom.change(() => toggleItem(item.id))]}
+                    className="w-5 h-5 rounded-md cursor-pointer flex-shrink-0"
+                    aria-label={`Mark ${item.name} as ${item.checked ? 'unchecked' : 'checked'}`}
+                  />
+
+                  <span
+                    className={`flex-1 text-base sm:text-lg break-words transition-all ${
+                      item.checked
+                        ? "line-through text-neutral-400 dark:text-neutral-600"
+                        : "text-neutral-900 dark:text-neutral-50"
+                    }`}
+                  >
+                    {item.name}
+                  </span>
+
+                  {/* Dropdown menu */}
+                  <div className="relative flex-shrink-0" data-dropdown>
+                    <button
+                      on={[press((e) => {
+                        e.stopPropagation();
+                        toggleDropdown(item.id);
+                      })]}
+                      className="p-2 rounded-lg text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                      aria-label="Item options"
+                      aria-expanded={isDropdownOpen}
+                      aria-haspopup="true"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                      </svg>
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div
+                        className="absolute right-0 top-full mt-1 w-48 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-lg z-50"
+                        role="menu"
+                        aria-orientation="vertical"
+                      >
+                        <button
+                          on={[press(() => startEdit(item.id))]}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors rounded-t-lg"
+                          role="menuitem"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
+                          </svg>
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          on={[press(() => deleteItem(item.id))]}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors rounded-b-lg"
+                          role="menuitem"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                            <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                          </svg>
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -385,8 +449,8 @@ export function PackingListApp(this: Remix.Handle) {
       {items.length === 0 && (
         <div className="text-center py-12 px-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 mb-4">
-            <svg className="w-8 h-8 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m-2 7h12m-12 5h12"/>
             </svg>
           </div>
           <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-1">
