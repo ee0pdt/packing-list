@@ -8,10 +8,11 @@ interface JellyProgressBarProps {
   className?: string;
 }
 
+// Shared state to track progress across component updates
+const progressState = new Map<HTMLCanvasElement, { progress: number }>();
+
 export function JellyProgressBar(this: Remix.Handle, { progress, className = '' }: JellyProgressBarProps) {
   let canvas: HTMLCanvasElement | null = null;
-  let animationId: number | null = null;
-  let progressValue = progress;
 
   const initWebGPU = async (canvasElement: HTMLCanvasElement) => {
     try {
@@ -19,6 +20,13 @@ export function JellyProgressBar(this: Remix.Handle, { progress, className = '' 
         console.warn('[JellyProgressBar] WebGPU not supported');
         return null;
       }
+
+      // Initialize shared state for this canvas
+      if (!progressState.has(canvasElement)) {
+        progressState.set(canvasElement, { progress: progress });
+      }
+
+      const state = progressState.get(canvasElement)!;
 
       // Initialize TypeGPU
       const root = await tgpu.init();
@@ -34,6 +42,8 @@ export function JellyProgressBar(this: Remix.Handle, { progress, className = '' 
         alphaMode: 'premultiplied',
       });
 
+      console.log('[JellyProgressBar] WebGPU initialized');
+
       // Uniforms for animation and state
       const Uniforms = d.struct({
         time: d.f32,
@@ -43,7 +53,7 @@ export function JellyProgressBar(this: Remix.Handle, { progress, className = '' 
 
       const uniformBuffer = root.createBuffer(Uniforms, {
         time: 0,
-        progress: progressValue / 100,
+        progress: state.progress / 100,
         resolution: d.vec2f(canvasElement.width, canvasElement.height),
       }).$usage('uniform');
 
@@ -204,53 +214,62 @@ export function JellyProgressBar(this: Remix.Handle, { progress, className = '' 
         }],
       });
 
+      console.log('[JellyProgressBar] Pipeline created');
+
       // Animation loop
       const startTime = Date.now();
+      let animationId: number | null = null;
 
       const render = () => {
-        const currentTime = (Date.now() - startTime) / 1000.0;
+        try {
+          const currentTime = (Date.now() - startTime) / 1000.0;
 
-        // Update uniforms
-        uniformBuffer.write({
-          time: currentTime,
-          progress: progressValue / 100,
-          resolution: d.vec2f(canvasElement.width, canvasElement.height),
-        });
+          // Update uniforms with current progress from shared state
+          uniformBuffer.write({
+            time: currentTime,
+            progress: state.progress / 100,
+            resolution: d.vec2f(canvasElement.width, canvasElement.height),
+          });
 
-        // Get texture view
-        const textureView = context.getCurrentTexture().createView();
+          // Get texture view
+          const textureView = context.getCurrentTexture().createView();
 
-        // Create command encoder
-        const commandEncoder = device.createCommandEncoder();
+          // Create command encoder
+          const commandEncoder = device.createCommandEncoder();
 
-        // Render pass
-        const renderPass = commandEncoder.beginRenderPass({
-          colorAttachments: [{
-            view: textureView,
-            clearValue: { r: 0, g: 0, b: 0, a: 0 },
-            loadOp: 'clear',
-            storeOp: 'store',
-          }],
-        });
+          // Render pass
+          const renderPass = commandEncoder.beginRenderPass({
+            colorAttachments: [{
+              view: textureView,
+              clearValue: { r: 0, g: 0, b: 0, a: 0 },
+              loadOp: 'clear',
+              storeOp: 'store',
+            }],
+          });
 
-        // Execute pipeline
-        pipeline.execute(renderPass, {
-          uniforms: uniformBuffer,
-        });
+          // Execute pipeline
+          pipeline.execute(renderPass, {
+            uniforms: uniformBuffer,
+          });
 
-        renderPass.end();
+          renderPass.end();
 
-        // Submit
-        device.queue.submit([commandEncoder.finish()]);
+          // Submit
+          device.queue.submit([commandEncoder.finish()]);
 
-        animationId = requestAnimationFrame(render);
+          animationId = requestAnimationFrame(render);
+        } catch (err) {
+          console.error('[JellyProgressBar] Render error:', err);
+        }
       };
 
+      console.log('[JellyProgressBar] Starting render loop');
       render();
 
       return {
         cleanup: () => {
           if (animationId) cancelAnimationFrame(animationId);
+          progressState.delete(canvasElement);
         }
       };
 
@@ -284,10 +303,16 @@ export function JellyProgressBar(this: Remix.Handle, { progress, className = '' 
 
     // Cleanup on unmount
     return () => {
-      if (animationId) cancelAnimationFrame(animationId);
       resizeObserver.disconnect();
+      progressState.delete(canvas!);
     };
   };
+
+  // Update shared state when progress prop changes
+  if (canvas && progressState.has(canvas)) {
+    const state = progressState.get(canvas)!;
+    state.progress = progress;
+  }
 
   return () => (
     <canvas
