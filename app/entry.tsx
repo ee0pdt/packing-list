@@ -21,8 +21,12 @@ glassCanvas.width = window.innerWidth;
 glassCanvas.height = window.innerHeight;
 document.body.appendChild(glassCanvas);
 
-// Init WebGPU
-initLiquidGlass(glassCanvas);
+// Init WebGPU (non-blocking - don't await to prevent blocking app render)
+initLiquidGlass(glassCanvas).catch(err => {
+  console.error('Failed to initialize liquid glass:', err);
+  // Remove canvas if initialization failed
+  glassCanvas.remove();
+});
 
 // Handle resize
 window.addEventListener("resize", () => {
@@ -30,6 +34,7 @@ window.addEventListener("resize", () => {
   glassCanvas.height = window.innerHeight;
 });
 
+// Render the React app immediately, don't wait for WebGPU
 createRoot(root).render(
   <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
     {/* Animated gradient background */}
