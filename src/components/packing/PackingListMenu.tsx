@@ -25,7 +25,6 @@ export const PackingListMenu = ({
   onAddSublist,
   onEdit,
   onDelete,
-  disabled,
 }: PackingListMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -34,10 +33,7 @@ export const PackingListMenu = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (event?: React.MouseEvent<HTMLElement>) => {
-    if (event) {
-      event.stopPropagation();
-    }
+  const handleClose = () => {
     setAnchorEl(null);
   };
 

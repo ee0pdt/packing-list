@@ -4,7 +4,6 @@ import {
   Paper,
   Collapse,
   LinearProgress,
-  useTheme,
   IconButton,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
@@ -17,6 +16,7 @@ import PackingListItem from "./PackingListItem";
 import EditableListHeader from "./EditableListHeader";
 import MarkPackedDialog from "../dialogs/MarkPackedDialog";
 import { PackingListMenu } from "./PackingListMenu";
+import { morphIn, jellyBounce } from "../../styles/animations";
 
 interface PackingListProps {
   list: List;
@@ -52,7 +52,6 @@ const PackingList = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const theme = useTheme();
 
   const isPackedMemo = useMemo(() => {
     const checkPacked = (item: PackingListItemType): boolean => {
@@ -162,7 +161,17 @@ const PackingList = ({
   };
 
   const expandCollapseButton = (
-    <IconButton onClick={handleExpand} size="small">
+    <IconButton
+      onClick={handleExpand}
+      size="small"
+      sx={{
+        transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)',
+        '&:hover': {
+          transform: isExpanded ? 'rotate(0deg) scale(1.2)' : 'rotate(180deg) scale(1.2)',
+        }
+      }}
+    >
       {isExpanded ? <ExpandLess /> : <ExpandMore />}
     </IconButton>
   );
@@ -170,26 +179,53 @@ const PackingList = ({
   return (
     <>
       <Paper
-        elevation={0}
+        elevation={2}
         sx={{
+          background: 'rgba(255, 255, 255, 0.12)',
+          backdropFilter: 'blur(25px) saturate(180%) brightness(120%)',
+          WebkitBackdropFilter: 'blur(25px) saturate(180%) brightness(120%)',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
+          boxShadow: `
+            0 8px 32px 0 rgba(31, 38, 135, 0.15),
+            inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)
+          `,
           pl: 2,
           mt: 2,
           overflow: "hidden",
-          borderRadius: "8px 0 0 8px",
-          backgroundColor: !isExpanded
-            ? progress === 100
-              ? theme.palette.success.dark
-              : theme.palette.info.dark
-            : theme.palette.background.paper,
+          borderRadius: "20px",
+          position: 'relative',
+          animation: `${morphIn} 0.6s ease-out`,
+          marginLeft: `${level * 16}px`,
+          transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+          '&:hover': {
+            background: 'rgba(255, 255, 255, 0.18)',
+            backdropFilter: 'blur(30px) saturate(190%) brightness(125%)',
+            WebkitBackdropFilter: 'blur(30px) saturate(190%) brightness(125%)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
+            transform: 'translateY(-2px)',
+          },
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: !isExpanded
+              ? progress === 100
+                ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(110, 231, 183, 0.2) 100%)'
+                : 'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 197, 253, 0.2) 100%)'
+              : 'transparent',
+            pointerEvents: 'none',
+            transition: 'all 0.6s ease',
+            opacity: isExpanded ? 0 : 1,
+          },
         }}
       >
         <div
           style={{
-            backgroundColor: !isExpanded
-              ? progress === 100
-                ? theme.palette.success.light
-                : theme.palette.info.light
-              : theme.palette.background.paper,
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           <EditableListHeader
@@ -219,18 +255,36 @@ const PackingList = ({
             variant="determinate"
             value={progress}
             sx={{
+              position: 'relative',
+              zIndex: 1,
               "& .MuiLinearProgress-bar": {
-                backgroundColor:
-                  progress === 100
-                    ? theme.palette.success.main
-                    : theme.palette.info.main,
+                animation: progress > 0 ? `${jellyBounce} 0.6s ease` : 'none',
               },
             }}
           />
         )}
 
-        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-          <MuiList disablePadding>
+        <Collapse
+          in={isExpanded}
+          timeout={{
+            enter: 600,
+            exit: 400,
+          }}
+          unmountOnExit
+          sx={{
+            '& .MuiCollapse-wrapper': {
+              transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            }
+          }}
+        >
+          <MuiList
+            disablePadding
+            sx={{
+              position: 'relative',
+              zIndex: 1,
+              padding: '8px',
+            }}
+          >
             {list.items.map((item) =>
               isItem(item) ? (
                 <PackingListItem

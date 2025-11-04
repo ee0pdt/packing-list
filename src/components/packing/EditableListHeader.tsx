@@ -66,7 +66,7 @@ const EditableListHeader = ({
     setState(isEditing ? EditableHeaderState.EDITING : EditableHeaderState.VIEWING);
   }, [isEditing]);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     if (state === EditableHeaderState.VIEWING && onClick) {
       onClick();
     }
