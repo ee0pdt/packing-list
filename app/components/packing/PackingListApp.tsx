@@ -238,40 +238,40 @@ export function PackingListApp(this: Remix.Handle) {
     const progress = totalCount > 0 ? (packedCount / totalCount) * 100 : 0;
 
     return (
-    <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-soft-md border border-neutral-200 dark:border-neutral-700 p-6 sm:p-8 lg:p-10">
+    <div className="glass dark:glass-dark rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] backdrop-blur-lg">
       <div className="mb-8 flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h2 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
             Packing List
           </h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="text-sm text-neutral-700/80 dark:text-neutral-300/80">
             Keep track of everything you need
           </p>
         </div>
         <button
           on={[press(() => toggleTheme())]}
-          className="flex-shrink-0 p-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
+          className="glass-button flex-shrink-0 p-3 rounded-2xl border border-white/20 dark:border-white/10 hover:shadow-lg transition-all duration-300"
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
-          <span className="text-xl">
+          <span className="text-2xl">
             {theme === 'light' ? '☀️' : '🌙'}
           </span>
         </button>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 glass-button p-4 rounded-2xl border border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
+          <span className="text-xs font-bold uppercase tracking-wider text-neutral-600/80 dark:text-neutral-400/80">
             Progress
           </span>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
             {packedCount} / {totalCount}
           </span>
         </div>
-        <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2.5 overflow-hidden">
+        <div className="relative w-full h-3 bg-white/30 dark:bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
           <div
-            className="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${progress}%` }}
+            className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full transition-all duration-700 ease-out shadow-[0_0_20px_rgba(147,51,234,0.5)]"
+            style={{ width: `${progress}%`, transformOrigin: 'left' }}
           />
         </div>
       </div>
@@ -288,11 +288,11 @@ export function PackingListApp(this: Remix.Handle) {
             dom.keypress((e) => e.key === "Enter" && addItem()),
           ]}
           placeholder="Add new item..."
-          className="flex-1 px-4 py-3 rounded-xl border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-primary-500 dark:focus:border-primary-400 focus:outline-none transition-colors"
+          className="flex-1 px-5 py-4 rounded-2xl glass-button border border-white/30 dark:border-white/10 text-neutral-900 dark:text-neutral-50 placeholder:text-neutral-500/60 dark:placeholder:text-neutral-400/60 focus:border-purple-500/50 dark:focus:border-purple-400/50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
         />
         <button
           on={[press(() => addItem())]}
-          className="px-6 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 active:bg-primary-800 dark:bg-primary-500 dark:hover:bg-primary-600 dark:active:bg-primary-700 text-white font-semibold transition-colors shadow-sm hover:shadow-md"
+          className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 active:scale-95 dark:from-blue-500 dark:to-purple-500 text-white font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/50"
         >
           Add Item
         </button>
@@ -309,7 +309,7 @@ export function PackingListApp(this: Remix.Handle) {
             <div
               key={item.id}
               data-item-id={item.id}
-              className={`relative rounded-xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'shadow-2xl scale-105 z-50' : ''} ${isDragOver ? 'ring-2 ring-primary-500' : ''} transition-all`}
+              className={`relative rounded-2xl ${item.id === justAddedItemId ? 'animate-pop-in' : ''} ${isBeingDragged ? 'shadow-[0_0_40px_rgba(147,51,234,0.6)] scale-105 z-50' : ''} ${isDragOver ? 'ring-2 ring-purple-500 shadow-[0_0_30px_rgba(147,51,234,0.4)]' : ''} transition-all duration-300`}
               on={[
                 dom.touchmove(handleDragMove),
                 dom.touchend(handleDragEnd),
@@ -323,7 +323,7 @@ export function PackingListApp(this: Remix.Handle) {
             >
               {isEditing ? (
                 /* Edit mode */
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-primary-50 dark:bg-primary-950/20 border-2 border-primary-500 dark:border-primary-600">
+                <div className="flex items-center gap-3 p-4 rounded-2xl glass-button border border-purple-500/50 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
                   <input
                     type="text"
                     value={editingItemName}
@@ -337,25 +337,25 @@ export function PackingListApp(this: Remix.Handle) {
                         if (e.key === "Escape") cancelEdit();
                       }),
                     ]}
-                    className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 focus:border-primary-500 dark:focus:border-primary-400 focus:outline-none"
+                    className="flex-1 px-4 py-2 rounded-xl glass-button border border-white/20 text-neutral-900 dark:text-neutral-50 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
                     autoFocus
                   />
                   <button
                     on={[press(() => saveEdit())]}
-                    className="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm transition-colors"
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-sm transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
                   >
                     Save
                   </button>
                   <button
                     on={[press(() => cancelEdit())]}
-                    className="px-4 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-neutral-50 font-medium text-sm transition-colors"
+                    className="px-5 py-2 rounded-xl glass-button border border-white/20 hover:bg-white/30 dark:hover:bg-black/30 text-neutral-900 dark:text-neutral-50 font-bold text-sm transition-all duration-300"
                   >
                     Cancel
                   </button>
                 </div>
               ) : (
                 /* Normal mode */
-                <div className="group flex items-center gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors relative">
+                <div className={`group flex items-center gap-3 p-4 rounded-2xl glass-button border border-white/20 dark:border-white/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative ${item.checked ? 'opacity-60' : ''}`}>
                   {/* Drag handle */}
                   <button
                     on={[
@@ -402,13 +402,13 @@ export function PackingListApp(this: Remix.Handle) {
 
                     {isDropdownOpen && (
                       <div
-                        className="absolute right-0 top-full mt-1 w-40 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-lg z-50"
+                        className="absolute right-0 top-full mt-2 w-40 rounded-xl glass dark:glass-dark border border-white/30 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] backdrop-blur-lg z-50 overflow-hidden"
                         role="menu"
                         aria-orientation="vertical"
                       >
                         <button
                           on={[press(() => startEdit(item.id))]}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors rounded-t-lg"
+                          className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all duration-200 font-medium"
                           role="menuitem"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -418,7 +418,7 @@ export function PackingListApp(this: Remix.Handle) {
                         </button>
                         <button
                           on={[press(() => deleteItem(item.id))]}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors rounded-b-lg"
+                          className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-sm text-neutral-700 dark:text-neutral-200 hover:bg-white/40 dark:hover:bg-white/10 transition-all duration-200 font-medium"
                           role="menuitem"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -437,16 +437,16 @@ export function PackingListApp(this: Remix.Handle) {
       </div>
 
       {items.length === 0 && (
-        <div className="text-center py-12 px-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 dark:bg-neutral-800 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <div className="text-center py-16 px-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full glass-button border border-white/30 dark:border-white/10 mb-6 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-purple-500 dark:text-purple-400" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m-2 7h12m-12 5h12"/>
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-1">
+          <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-2">
             No items yet
           </h3>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm text-neutral-600/80 dark:text-neutral-400/80">
             Add your first item to get started
           </p>
         </div>
