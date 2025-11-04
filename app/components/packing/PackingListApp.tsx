@@ -1,6 +1,7 @@
 import type { Remix } from "@remix-run/dom";
 import { press } from "@remix-run/events/press";
 import { dom } from "@remix-run/events";
+import { JellyProgressBar } from "../webgpu/JellyProgressBar";
 
 interface ListItem {
   id: string;
@@ -268,11 +269,8 @@ export function PackingListApp(this: Remix.Handle) {
             {packedCount} / {totalCount}
           </span>
         </div>
-        <div className="relative w-full h-3 bg-white/30 dark:bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full transition-all duration-700 ease-out shadow-[0_0_20px_rgba(147,51,234,0.5)]"
-            style={{ width: `${progress}%`, transformOrigin: 'left' }}
-          />
+        <div className="relative w-full h-6 bg-white/20 dark:bg-black/30 rounded-full overflow-hidden backdrop-blur-sm shadow-inner">
+          <JellyProgressBar progress={progress} className="rounded-full" />
         </div>
       </div>
 
