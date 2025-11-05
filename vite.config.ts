@@ -1,28 +1,29 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  base: '/packing-list/',
-  plugins: [react()],
+  base: "/",
   resolve: {
     alias: {
-      '@': '/src',
+      "@": "/app",
     },
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'mui': ['@mui/material', '@mui/icons-material'],
-          'vendor': ['react', 'react-dom', 'react-router-dom']
-        }
-      }
-    }
   },
   server: {
     port: 3000,
     open: true,
-    host: true
-  }
-})
+    host: true,
+  },
+  preview: {
+    host: "0.0.0.0",
+    port: 4173,
+    strictPort: false,
+    allowedHosts: [
+      ".railway.app",
+      ".up.railway.app",
+      "localhost",
+      "127.0.0.1",
+    ],
+  },
+  esbuild: {
+    jsxImportSource: "@remix-run/dom",
+  },
+});
