@@ -1,3 +1,7 @@
+import tgpu from 'typegpu';
+import * as d from 'typegpu/data';
+import * as std from 'typegpu/std';
+
 export async function initLiquidGlass(canvas: HTMLCanvasElement) {
   try {
     console.log('[LiquidGlass] Initializing...');
@@ -8,17 +12,243 @@ export async function initLiquidGlass(canvas: HTMLCanvasElement) {
       return;
     }
 
-    console.log('[LiquidGlass] WebGPU detected, but overlay disabled for stability');
-    console.log('[LiquidGlass] Focus is on jelly progress bar effect');
+    // Initialize TypeGPU root
+    console.log('[LiquidGlass] Requesting GPU adapter...');
+    const root = await tgpu.init();
+    const device = root.device;
+    console.log('[LiquidGlass] GPU device initialized');
 
-    // For now, disable the full-screen liquid glass overlay
-    // The jelly progress bar provides the main visual effect
-    // This avoids TypeGPU API compatibility issues
+    const context = canvas.getContext('webgpu');
 
-    return;
+    if (!context) {
+      console.error('[LiquidGlass] Could not get WebGPU context');
+      return;
+    }
+
+    // Configure canvas
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    context.configure({
+      device,
+      format: presentationFormat,
+      alphaMode: 'premultiplied',
+    });
+
+    console.log('[LiquidGlass] Canvas configured with format:', presentationFormat);
+
+    // Create uniforms structure
+    const Uniforms = d.struct({
+      time: d.f32,
+      resolution: d.vec2f,
+      mouse: d.vec2f,
+    });
+
+    // Create uniform buffer
+    const uniformBuffer = root.createBuffer(Uniforms, {
+      time: 0,
+      resolution: d.vec2f(canvas.width, canvas.height),
+      mouse: d.vec2f(0.5, 0.5),
+    }).$usage('uniform');
+
+    console.log('[LiquidGlass] Uniform buffer created');
+
+    try {
+      // Create simple vertex shader for fullscreen quad
+      console.log('[LiquidGlass] Creating vertex shader...');
+      const vertexShader = tgpu['~unstable'].vertexFn([], d.vec4f)
+        .does(({ vertexIndex }) => {
+          'use gpu';
+          // Fullscreen triangle vertices
+          const x = (vertexIndex === 1) ? 3.0 : -1.0;
+          const y = (vertexIndex === 2) ? -3.0 : 1.0;
+          return d.vec4f(x, y, 0.0, 1.0);
+        })
+        .with({ builtin: 'position' });
+
+      console.log('[LiquidGlass] Vertex shader created');
+
+      // Create fragment shader with liquid glass effect
+      console.log('[LiquidGlass] Creating fragment shader...');
+      const fragmentShader = tgpu['~unstable'].fragmentFn([d.vec4f], d.vec4f)
+        .does(({ position }, { uniforms }) => {
+          'use gpu';
+
+          // Normalize UV coordinates
+          const uv = d.vec2f(
+            position.x / uniforms.resolution.x,
+            position.y / uniforms.resolution.y
+          );
+
+          const time = uniforms.time;
+          const center = d.vec2f(0.5, 0.5);
+
+          // Calculate distance from center
+          const dx = uv.x - center.x;
+          const dy = uv.y - center.y;
+          const dist = std.sqrt(dx * dx + dy * dy);
+
+          // Jelly wobble - simplified
+          const wobble = std.sin(time * 2.0 + uv.x * 8.0) * 0.02;
+
+          // Apply wobble
+          const wobbledUV = d.vec2f(
+            uv.x + wobble,
+            uv.y + wobble * 0.8
+          );
+
+          // Mouse ripple
+          const mouseDx = uv.x - uniforms.mouse.x;
+          const mouseDy = uv.y - uniforms.mouse.y;
+          const mouseDist = std.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+          const ripple = std.sin((mouseDist - time * 0.5) * 20.0) * std.exp(-mouseDist * 3.0) * 0.03;
+
+          // Glass refraction
+          const refractStrength = std.smoothstep(0.5, 0.0, dist) * 0.5;
+          const normal = d.vec2f(dx / (dist + 0.001), dy / (dist + 0.001));
+
+          const refractedUV = d.vec2f(
+            std.clamp(wobbledUV.x + normal.x * (refractStrength + ripple), 0.0, 1.0),
+            std.clamp(wobbledUV.y + normal.y * (refractStrength + ripple), 0.0, 1.0)
+          );
+
+          // Animated gradient background
+          const color = d.vec3f(
+            0.5 + 0.5 * std.sin(refractedUV.x * 3.14159 + time),
+            0.5 + 0.5 * std.sin(refractedUV.y * 3.14159 + time + 2.0),
+            0.5 + 0.5 * std.cos((refractedUV.x + refractedUV.y) * 3.14159 + time)
+          );
+
+          // Fresnel edge highlights
+          const fresnel = std.pow(1.0 - std.abs(dx * dx + dy * dy), 3.0);
+          const highlight = fresnel * 0.3 * refractStrength;
+
+          // Glass tint
+          const glassTint = d.vec3f(0.95, 0.97, 1.0);
+          const finalColor = d.vec3f(
+            color.x * glassTint.x + highlight,
+            color.y * glassTint.y + highlight,
+            color.z * glassTint.z + highlight
+          );
+
+          // Low opacity for glass effect
+          const alpha = 0.15 + refractStrength * 0.2;
+
+          return d.vec4f(finalColor.x, finalColor.y, finalColor.z, alpha);
+        })
+        .with({ builtin: 'position' })
+        .outputs({ location: 0 });
+
+      console.log('[LiquidGlass] Fragment shader created');
+
+      // Create render pipeline using TypeGPU's guarded pipeline
+      console.log('[LiquidGlass] Creating render pipeline...');
+      const pipeline = root['~unstable'].createGuardedRenderPipeline({
+        vertex: vertexShader,
+        fragment: fragmentShader,
+        primitive: {
+          topology: 'triangle-list',
+        },
+        targets: [{
+          format: presentationFormat,
+          blend: {
+            color: {
+              srcFactor: 'src-alpha',
+              dstFactor: 'one-minus-src-alpha',
+              operation: 'add',
+            },
+            alpha: {
+              srcFactor: 'one',
+              dstFactor: 'one-minus-src-alpha',
+              operation: 'add',
+            },
+          },
+        }],
+      });
+
+      console.log('[LiquidGlass] Render pipeline created successfully!');
+
+      // Mouse tracking
+      let mouseX = 0.5;
+      let mouseY = 0.5;
+
+      window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX / window.innerWidth;
+        mouseY = 1.0 - (e.clientY / window.innerHeight);
+      });
+
+      // Animation loop
+      const startTime = Date.now();
+
+      function render() {
+        try {
+          const currentTime = (Date.now() - startTime) / 1000.0;
+
+          // Update uniforms
+          uniformBuffer.write({
+            time: currentTime,
+            resolution: d.vec2f(canvas.width, canvas.height),
+            mouse: d.vec2f(mouseX, mouseY),
+          });
+
+          // Get current texture view
+          const textureView = context.getCurrentTexture().createView();
+
+          // Create command encoder
+          const commandEncoder = device.createCommandEncoder();
+
+          // Create render pass
+          const renderPass = commandEncoder.beginRenderPass({
+            colorAttachments: [{
+              view: textureView,
+              clearValue: { r: 0, g: 0, b: 0, a: 0 },
+              loadOp: 'clear',
+              storeOp: 'store',
+            }],
+          });
+
+          // Render with pipeline
+          pipeline.execute(renderPass, {
+            uniforms: uniformBuffer,
+          });
+
+          renderPass.end();
+
+          // Submit commands
+          device.queue.submit([commandEncoder.finish()]);
+
+          requestAnimationFrame(render);
+        } catch (err) {
+          console.error('[LiquidGlass] Render error:', err);
+        }
+      }
+
+      console.log('[LiquidGlass] Starting render loop');
+      render();
+
+      // Handle resize
+      const handleResize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        context.configure({
+          device,
+          format: presentationFormat,
+          alphaMode: 'premultiplied',
+        });
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      console.log('[LiquidGlass] Liquid glass overlay active! 💎');
+
+    } catch (shaderError) {
+      console.error('[LiquidGlass] Shader/Pipeline error:', shaderError);
+      console.error('[LiquidGlass] Error details:', JSON.stringify(shaderError, null, 2));
+      throw shaderError;
+    }
 
   } catch (error) {
     console.error('[LiquidGlass] Initialization failed:', error);
+    console.error('[LiquidGlass] Full error:', error);
     // Don't throw - allow app to continue without liquid glass overlay
     return;
   }
