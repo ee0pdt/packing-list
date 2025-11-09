@@ -149,9 +149,6 @@ export const components: Components<Omit<Theme, 'components'>> = {
         '&:hover': {
           transform: 'scale(1.15)',
         },
-        '&.Mui-checked': {
-          animation: 'jellyBounce 0.5s ease',
-        },
       },
     },
   },
@@ -220,7 +217,6 @@ export const components: Components<Omit<Theme, 'components'>> = {
         borderRadius: '10px',
         background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.9) 50%, rgba(236, 72, 153, 0.8) 100%)',
         backgroundSize: '200% 100%',
-        animation: 'shimmer 2s linear infinite',
         boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)',
       },
     },
